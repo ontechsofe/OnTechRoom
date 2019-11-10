@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#D81B60</color>
+    <color name="colorPrimary">#003c71</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorAccent">#e75d2a</color>
+    <!-- The official colours from the OnTech Brand central -->
+    <color name="colorFutureBlue">#003c71</color>
+    <color name="colorSimcoeBlue">#0077ca</color>
+    <color name="colorTechTangerine">#e75d2a</color>
+    <color name="colorWarmGrey">#aca39a</color>
+    <color name="colorCoolGrey">#a7a8aa</color>
+    <color name="colorDarkGrey">#5b6770</color>
+    <color name="colorSpiritNavy">#00283c</color>
+    <color name="colorWhite">#ffffff</color>
+    <color name="colorBlack">#000000</color>
 </resources>
