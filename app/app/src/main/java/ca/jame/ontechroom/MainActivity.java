@@ -21,6 +21,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void doViewBookings(View view) {
-
+        Intent intent = new Intent(MainActivity.this, ViewBookingsActivity.class);
+        startActivity(intent);
+        overridePendingTransition(R.anim.slide_out_left, R.anim.slide_in_left);
     }
 }

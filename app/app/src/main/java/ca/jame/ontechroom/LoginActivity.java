@@ -19,20 +19,26 @@ public class LoginActivity extends AppCompatActivity {
     // Button click for logging in
     // TODO: Add login logic
     public void doLogin(View view) {
-        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-        finish();
+        showDialog();
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                finish();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     private void showDialog() {
-        // This is for the custom dialog box
-        // Need to add the get and set for the items in the dialog box
-        // also TODO: rename dialog_test to something better
         final Dialog dialog = new Dialog(LoginActivity.this);
-        dialog.setContentView(R.layout.dialog_test);
-        dialog.setTitle("Title...");
+        dialog.setContentView(R.layout.dialog_loading);
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
         dialog.show();
     }
 }

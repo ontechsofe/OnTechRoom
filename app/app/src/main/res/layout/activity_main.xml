@@ -164,8 +164,9 @@
                         android:layout_weight="1"
                         android:background="@drawable/ripple_effect"
                         android:fontFamily="@font/ubuntu"
+                        android:onClick="doViewBookings"
                         android:padding="32dp"
-                        android:text="View Bookings"
+                        android:text="View Your Bookings"
                         android:textColor="@color/colorWhite"
                         android:textSize="24sp" />
                 </LinearLayout>
