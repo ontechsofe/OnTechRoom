@@ -1,0 +1,13 @@
+{
+  "name": "ontechroom_server",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
+    "prompt-password": "^1.2.0",
+    "request": "^2.88.0"
+  }
+}
