@@ -1,17 +1,15 @@
 package ca.jame.ontechroom.types;
 
-public class Room {
-    private String name;
+import java.io.Serializable;
+import java.util.ArrayList;
 
-    public Room(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+public class Room implements Serializable {
+    public String name;
+    public String imageURL;
+    public ArrayList<String> facilities;
+    public int floor;
+    public int capacity;
+    public int minRequired;
+    public int maxDuration;
+    public String _id;
 }

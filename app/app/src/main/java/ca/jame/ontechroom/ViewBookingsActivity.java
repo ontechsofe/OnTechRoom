@@ -3,6 +3,7 @@ package ca.jame.ontechroom;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.view.View;
 
 public class ViewBookingsActivity extends AppCompatActivity {
 
@@ -15,6 +16,11 @@ public class ViewBookingsActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_right);
+    }
+
+    public void goBack(View view) {
+        finish();
         overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_right);
     }
 }

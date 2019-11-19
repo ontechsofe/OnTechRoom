@@ -1,3 +1,8 @@
+"use strict";
+const express = require('express');
+const app = express();
+const port = 3000;
+const diskdb = require('diskdb');
 const moment = require('moment');
 const request = require("request");
 const cheerio = require("cheerio");
@@ -18,6 +23,9 @@ let cookie = request.jar();
 const baseURL = "https://rooms.library.dc-uoit.ca/uo_rooms/";
 const calendarURL = baseURL + 'calendar.aspx';
 const roomURL = baseURL + 'room.aspx?room=';
+
+const dbs = ['rooms'];
+const db = diskdb.connect('./', dbs);
 
 function getStateData() {
     return new Promise((resolve, reject) => {
@@ -80,7 +88,6 @@ function getRoomData(roomName) {
         "Min. people required to book": {n: 'minRequired', c: true},
         "Max. bookable duration": {n: 'maxDuration', c: true}
     };
-
     return new Promise((resolve, reject) => {
         request.get({
             url: roomURL + roomName,
@@ -104,6 +111,7 @@ function getRoomData(roomName) {
             for (let i = 0; i < pts.length; i += 2) {
                 roomData[roomDataMap[pts[i]].n] = (roomDataMap[pts[i]].c ? parseInt(pts[i + 1]) : pts[i + 1]);
             }
+            roomData['facilities'] = roomData['facilities'].split(',').map(e => e.trim().toLowerCase());
             let completeRoomData = Object.assign({
                 name: roomName,
                 imageURL: baseURL + imagePhotoElement.attribs.src
@@ -116,24 +124,45 @@ function getRoomData(roomName) {
 async function getRooms(calendar) {
     const $ = cheerio.load(calendar);
     let roomData = [];
+    let roomNames = [];
     let rooms = $("table#ContentPlaceHolder1_Table1  tbody > tr:first-child td a");
-    rooms.each((i, e) => roomData.push(e.children[0].data));
-    for (let i = 0; i < roomData.length; i++) {
-        let r = await getRoomData(roomData[i]);
+    rooms.each((i, e) => roomNames.push(e.children[0].data));
+    for (let index = 0; index < roomNames.length; index++) {
+        let r = await getRoomData(roomNames[index]);
         roomData.push(r);
     }
     return roomData;
 }
 
-async function x() {
-    let data = await getStateData();
-    let postContinueData = await postStateData(data);
-    let calendar = await getDataForDate(postContinueData);
-    let roomData = await getRooms(calendar);
-    console.log(roomData);
-    const $ = cheerio.load(calendar);
-    let calendarTable = $("table#ContentPlaceHolder1_Table1  tbody tr");
+// async function x() {
+//     let data = await getStateData();
+//     let postContinueData = await postStateData(data);
+//     let calendar = await getDataForDate(postContinueData);
+//     let result = await getRooms(calendar);
+//     result.forEach(e => {
+//         console.log(e.name);
+//         db.rooms.update({name: e.name}, e, {multi: true, upsert: true})
+//     });
+//
+//     const $ = cheerio.load(calendar);
+//     let calendarTable = $("table#ContentPlaceHolder1_Table1  tbody tr");
+//
+// }
 
-}
+app.get('/', (req, res) => {
+    return res.json({data: 'Hello World!'});
+});
 
-x();
+app.get('/rooms', (req, res) => {
+    getStateData()
+        .then(data => postStateData(data)
+            .then(postContinueData => getDataForDate(postContinueData)
+                .then(calendar => getRooms(calendar)
+                    .then(result => res.json(result)))));
+});
+
+app.post('/auth', (req, res) => {
+    
+});
+
+app.listen(port, () => console.log(`Example app listening on port ${port}!`));

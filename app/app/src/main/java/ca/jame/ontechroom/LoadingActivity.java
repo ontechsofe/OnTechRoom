@@ -4,7 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import java.io.IOException;
+import java.util.ArrayList;
+
 import androidx.appcompat.app.AppCompatActivity;
+import ca.jame.ontechroom.api.OTR;
+import ca.jame.ontechroom.api.TestData;
+import ca.jame.ontechroom.types.Room;
 
 public class LoadingActivity extends AppCompatActivity {
     @Override
@@ -37,6 +43,10 @@ public class LoadingActivity extends AppCompatActivity {
         new Thread(() -> {
             try {
                 Thread.sleep(1000);
+                OnTechRoom x = OnTechRoom.getInstance();
+                ArrayList<Room> rooms = OTR.getInstance().getRooms();
+                System.out.println(rooms);
+                x.setRooms(rooms);
                 boolean loggedIn = true;
                 if (loggedIn) {
                     Intent intent = new Intent(LoadingActivity.this, MainActivity.class);

@@ -1,13 +1,19 @@
 package ca.jame.ontechroom;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
@@ -34,9 +40,14 @@ public class RoomCardAdapter extends RecyclerView.Adapter<RoomCardAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Log.d(TAG, "onBindViewHolder: called");
-        holder.textView.setText(mRooms.get(position).getName());
+        holder.textView.setText(mRooms.get(position).name);
         holder.parentLayout.setOnClickListener(v -> {
             Log.d(TAG, "onClick: clicked on: " + mRooms.get(position));
+            Activity mContext = (Activity) v.getContext();
+            Intent intent = new Intent(mContext, RoomViewActivity.class);
+            intent.putExtra("room-data", OnTechRoom.getInstance().getRoom(mRooms.get(position).name));
+            mContext.startActivity(intent);
+            mContext.overridePendingTransition(R.anim.slide_out_left, R.anim.slide_in_left);
         });
     }
 

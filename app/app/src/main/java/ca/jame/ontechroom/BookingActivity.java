@@ -7,6 +7,7 @@ import ca.jame.ontechroom.types.Room;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -26,6 +27,11 @@ public class BookingActivity extends AppCompatActivity {
         initRecyclerView();
     }
 
+    public void goBack(View view) {
+        finish();
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_right);
+    }
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -33,9 +39,7 @@ public class BookingActivity extends AppCompatActivity {
     }
 
     public void initList() {
-        for (int i = 0; i < 10; i++) {
-            this.mRooms.add(new Room(String.format(Locale.CANADA, "Room %d", i)));
-        }
+        this.mRooms = OnTechRoom.getInstance().getRooms();
     }
 
     private void initRecyclerView() {
