@@ -1,5 +1,6 @@
 "use strict";
 const express = require('express');
+const bodyParser = require('body-parser');
 const app = express();
 const port = 3000;
 const diskdb = require('diskdb');
@@ -26,6 +27,8 @@ const roomURL = baseURL + 'room.aspx?room=';
 
 const dbs = ['rooms'];
 const db = diskdb.connect('./', dbs);
+
+app.use(bodyParser.urlencoded({ extended: true }));
 
 function getStateData() {
     return new Promise((resolve, reject) => {
@@ -134,6 +137,23 @@ async function getRooms(calendar) {
     return roomData;
 }
 
+function getStudentID() {
+    return new Promise(((resolve, reject) => {
+        studentID.run().then(answers => {
+            console.log(answers);
+            resolve(answers);
+        });
+    }));
+}
+
+function getPassword() {
+    return new Promise(((resolve, reject) => {
+        prompt.run().then((answers) => {
+            resolve(answers)
+        });
+    }))
+}
+
 // async function x() {
 //     let data = await getStateData();
 //     let postContinueData = await postStateData(data);
@@ -149,6 +169,41 @@ async function getRooms(calendar) {
 //
 // }
 
+function checkLoginOnMyCampus(username, password) {
+    const LOGIN_URL = 'http://portal.mycampus.ca/cp/home/login';
+    const BASE_URL = 'http://portal.mycampus.ca/cp/ip/login?sys=sct&url=';
+    const NAME_URL = 'http://ssbp.mycampus.ca/prod_uoit/bwskoacc.P_ViewAcctTotal';
+    const PAYLOAD = {
+        'user': username,
+        'pass': password,
+        'uuid': '0xACA021'
+    };
+    let sess = request.jar();
+    return new Promise((resolve, reject) => {
+        request.post({
+            url: LOGIN_URL,
+            form: PAYLOAD,
+            jar: sess
+        }, (_err0, _res0, body0) => {
+            if (!body0.includes('Error: Failed Login')) {
+                request.get({
+                    url: (BASE_URL + NAME_URL),
+                    jar: sess
+                }, (_err01, _res01, body01) => {
+                    let nameContentArray = [];
+                    cheerio.load(body01)('p.whitespace1').each(function () {
+                        nameContentArray.push(this)
+                    });
+                    let fal = nameContentArray[0].children[0].data.replace(/\n/g, '').split('(')[0].trim().split(' ');
+                    resolve({first: fal[0], last: fal[1]})
+                })
+            } else {
+                reject("Invalid Login");
+            }
+        });
+    });
+}
+
 app.get('/', (req, res) => {
     return res.json({data: 'Hello World!'});
 });
@@ -162,7 +217,12 @@ app.get('/rooms', (req, res) => {
 });
 
 app.post('/auth', (req, res) => {
-    
+    checkLoginOnMyCampus(req.body.id, req.body.password).then(name => {
+        res.json({name});
+    }).catch(err => {
+        res.json({error: err});
+        console.log(err);
+    })
 });
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+app.listen(port, () => console.log(`OnTechRoom is listening on port ${port}!`));

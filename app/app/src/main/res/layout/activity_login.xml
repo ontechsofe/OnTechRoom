@@ -107,7 +107,7 @@
                 android:orientation="horizontal">
 
                 <EditText
-                    android:id="@+id/editText"
+                    android:id="@+id/idTxt"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="50dp"
@@ -126,7 +126,7 @@
                 android:orientation="horizontal">
 
                 <EditText
-                    android:id="@+id/editText2"
+                    android:id="@+id/passwordTxt"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="50dp"

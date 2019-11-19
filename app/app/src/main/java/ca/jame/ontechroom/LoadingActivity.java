@@ -47,7 +47,7 @@ public class LoadingActivity extends AppCompatActivity {
                 ArrayList<Room> rooms = OTR.getInstance().getRooms();
                 System.out.println(rooms);
                 x.setRooms(rooms);
-                boolean loggedIn = true;
+                boolean loggedIn = false;
                 if (loggedIn) {
                     Intent intent = new Intent(LoadingActivity.this, MainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
