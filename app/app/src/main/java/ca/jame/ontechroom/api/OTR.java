@@ -6,6 +6,7 @@ import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import ca.jame.ontechroom.httpClient.HTTPClient;
 import ca.jame.ontechroom.types.Room;
@@ -42,12 +43,12 @@ public class OTR {
         return null;
     }
 
-    public String authenticate(String id, String password) {
+    public Map<String, Object> authenticate(String id, String password) {
         try {
             HashMap<String, String> payload = new HashMap<>();
             payload.put("id", id);
             payload.put("password", password);
-            return HTTPClient.post(String.format("%s/auth", BASE_URL), payload);
+            return new Gson().fromJson(HTTPClient.post(String.format("%s/auth", BASE_URL), payload), new TypeToken<Map<String, Object>>(){}.getType());
         } catch (IOException e) {
             e.printStackTrace();
         }

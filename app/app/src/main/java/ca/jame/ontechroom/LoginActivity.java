@@ -6,8 +6,13 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.Map;
+import java.util.UUID;
+
 import androidx.appcompat.app.AppCompatActivity;
 import ca.jame.ontechroom.api.OTR;
+import ca.jame.ontechroom.db.user.UserDB;
+import ca.jame.ontechroom.types.User;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -31,11 +36,19 @@ public class LoginActivity extends AppCompatActivity {
         new Thread(() -> {
             String userID = id.getText().toString();
             String pass = password.getText().toString();
-            String response = OTR.getInstance().authenticate(userID, pass);
+            Map<String, Object> response = OTR.getInstance().authenticate(userID, pass);
             System.out.println(response);
-            if (response.contains("error")) {
+            if (response.containsKey("error")) {
                 hideDialog();
             } else {
+                UserDB userDB = new UserDB(getApplicationContext());
+                User u = new User();
+                u.firstName = ((Map<String, String>) response.get("name")).get("first");
+                u.lastName = ((Map<String, String>) response.get("name")).get("last");
+                u.uuid = UUID.randomUUID().toString();
+                u.studentId = userID;
+                u.password = pass;
+                userDB.addUserData(u);
                 dialog.dismiss();
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

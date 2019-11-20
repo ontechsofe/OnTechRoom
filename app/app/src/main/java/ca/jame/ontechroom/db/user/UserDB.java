@@ -2,9 +2,12 @@ package ca.jame.ontechroom.db.user;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.CursorWindow;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.ArrayList;
 import java.util.Locale;
 
 import ca.jame.ontechroom.types.User;
@@ -55,5 +58,38 @@ public class UserDB extends SQLiteOpenHelper {
         db.execSQL("DELETE FROM " + TABLE_NAME);
         db.insert(TABLE_NAME, null, values);
         db.close();
+    }
+
+    public ArrayList<User> getAllUsers() {
+        ArrayList<User> userArrayList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery("SELECT * FROM " + TABLE_NAME, null);
+        c.moveToFirst();
+        while (!(c.isAfterLast())) {
+            User user = new User();
+            user.uuid = c.getString(c.getColumnIndex(COL_UUID));
+            user.firstName = c.getString(c.getColumnIndex(COL_FIRST_NAME));
+            user.lastName = c.getString(c.getColumnIndex(COL_LAST_NAME));
+            user.studentId = c.getString(c.getColumnIndex(COL_STUDENT_ID));
+            user.password = c.getString(c.getColumnIndex(COL_PASSWORD));
+            userArrayList.add(user);
+            c.moveToNext();
+        }
+        c.close();
+        db.close();
+        return userArrayList;
+    }
+
+    public User getUser() {
+        return this.getAllUsers().get(0); // There should only ever be one user in the database
+    }
+
+    public int userCount() {
+        return this.getAllUsers().size();
+    }
+
+    public void clean() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_NAME);
     }
 }

@@ -44,6 +44,20 @@
 
         <LinearLayout
             android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/imageButton4"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:onClick="showPopup"
+                app:srcCompat="@drawable/dots_vertical" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
             android:orientation="vertical">
@@ -95,10 +109,12 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="16dp"
                         android:layout_marginTop="64dp"
+                        android:fontFamily="@font/ubuntu"
                         android:text="Welcome, Ethan!"
                         android:textAlignment="viewStart"
                         android:textColor="@color/colorBlack"
-                        android:textSize="30sp" />
+                        android:textSize="30sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/textView6"

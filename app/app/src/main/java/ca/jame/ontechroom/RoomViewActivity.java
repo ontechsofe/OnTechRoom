@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Locale;
 
@@ -64,5 +65,11 @@ public class RoomViewActivity extends AppCompatActivity {
     public void goBack(View view) {
         finish();
         overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_right);
+    }
+
+    public void snackTime(View view) {
+        Snackbar.make(view, R.string.app_name, Snackbar.LENGTH_SHORT).setAction("UH OH", v -> {
+            System.out.println("CLICKED");
+        }).show();
     }
 }

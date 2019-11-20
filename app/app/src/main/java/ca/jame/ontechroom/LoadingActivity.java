@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import androidx.appcompat.app.AppCompatActivity;
 import ca.jame.ontechroom.api.OTR;
 import ca.jame.ontechroom.api.TestData;
+import ca.jame.ontechroom.db.user.UserDB;
 import ca.jame.ontechroom.types.Room;
 
 public class LoadingActivity extends AppCompatActivity {
@@ -47,7 +48,8 @@ public class LoadingActivity extends AppCompatActivity {
                 ArrayList<Room> rooms = OTR.getInstance().getRooms();
                 System.out.println(rooms);
                 x.setRooms(rooms);
-                boolean loggedIn = false;
+                UserDB userDB = new UserDB(getApplicationContext());
+                boolean loggedIn = userDB.userCount() > 0;
                 if (loggedIn) {
                     Intent intent = new Intent(LoadingActivity.this, MainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

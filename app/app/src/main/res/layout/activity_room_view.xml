@@ -178,6 +178,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
+                                    android:fontFamily="@font/ubuntu"
                                     android:text="Floor"
                                     android:textColor="@color/colorBlack"
                                     android:textSize="18sp" />
@@ -199,6 +200,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
+                                    android:fontFamily="@font/ubuntu"
                                     android:text="Maximum Capacity"
                                     android:textColor="@color/colorBlack"
                                     android:textSize="18sp" />
@@ -220,6 +222,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
+                                    android:fontFamily="@font/ubuntu"
                                     android:text="Booking Minimum"
                                     android:textColor="@color/colorBlack"
                                     android:textSize="18sp" />
@@ -241,6 +244,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
+                                    android:fontFamily="@font/ubuntu"
                                     android:text="Maximum Booking Duration"
                                     android:textColor="@color/colorBlack"
                                     android:textSize="18sp" />
@@ -257,6 +261,7 @@
                                 android:id="@+id/textView10"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:fontFamily="@font/ubuntu"
                                 android:text="Facilities"
                                 android:textColor="@color/colorBlack"
                                 android:textSize="18sp" />
@@ -287,6 +292,8 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:background="@drawable/ripple_effect_simcoe"
+                                android:fontFamily="@font/ubuntu"
+                                android:onClick="snackTime"
                                 android:text="Book This Room"
                                 android:textColor="@color/colorWhite"
                                 android:textSize="18sp" />
