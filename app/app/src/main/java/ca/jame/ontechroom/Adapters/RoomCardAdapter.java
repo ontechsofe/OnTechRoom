@@ -25,7 +25,7 @@ public class RoomCardAdapter extends RecyclerView.Adapter<RoomCardAdapter.ViewHo
     ArrayList<Room> mRooms;
     private Context mContext;
 
-    RoomCardAdapter(Context mContext, ArrayList<Room> mRooms) {
+    public RoomCardAdapter(Context mContext, ArrayList<Room> mRooms) {
         this.mRooms = mRooms;
         this.mContext = mContext;
     }
