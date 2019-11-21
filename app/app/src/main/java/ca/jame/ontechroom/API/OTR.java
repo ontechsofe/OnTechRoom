@@ -1,4 +1,4 @@
-package ca.jame.ontechroom.api;
+package ca.jame.ontechroom.API;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -8,11 +8,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import ca.jame.ontechroom.httpClient.HTTPClient;
-import ca.jame.ontechroom.types.Room;
+import ca.jame.ontechroom.API.httpClient.HTTPClient;
+import ca.jame.ontechroom.API.types.Room;
 
 public class OTR {
     private static OTR instance = null;
+
     public static OTR getInstance() {
         if (instance == null) {
             instance = new OTR();
@@ -25,18 +26,10 @@ public class OTR {
     private OTR() {
     }
 
-    public TestData getTest() {
-        try {
-            return new Gson().fromJson(HTTPClient.get(BASE_URL), TestData.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public ArrayList<Room> getRooms() {
         try {
-            return new Gson().fromJson(HTTPClient.get(String.format("%s/rooms", BASE_URL)), new TypeToken<ArrayList<Room>>(){}.getType());
+            return new Gson().fromJson(HTTPClient.get(String.format("%s/rooms", BASE_URL)), new TypeToken<ArrayList<Room>>() {
+            }.getType());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -48,7 +41,8 @@ public class OTR {
             HashMap<String, String> payload = new HashMap<>();
             payload.put("id", id);
             payload.put("password", password);
-            return new Gson().fromJson(HTTPClient.post(String.format("%s/auth", BASE_URL), payload), new TypeToken<Map<String, Object>>(){}.getType());
+            return new Gson().fromJson(HTTPClient.post(String.format("%s/auth", BASE_URL), payload), new TypeToken<Map<String, Object>>() {
+            }.getType());
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -1,17 +1,18 @@
-package ca.jame.ontechroom;
+package ca.jame.ontechroom.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import java.io.IOException;
+import androidx.appcompat.app.AppCompatActivity;
+
 import java.util.ArrayList;
 
-import androidx.appcompat.app.AppCompatActivity;
-import ca.jame.ontechroom.api.OTR;
-import ca.jame.ontechroom.api.TestData;
-import ca.jame.ontechroom.db.user.UserDB;
-import ca.jame.ontechroom.types.Room;
+import ca.jame.ontechroom.API.OnTechRoom.OnTechRoom;
+import ca.jame.ontechroom.R;
+import ca.jame.ontechroom.API.OTR;
+import ca.jame.ontechroom.API.db.user.UserDB;
+import ca.jame.ontechroom.API.types.Room;
 
 public class LoadingActivity extends AppCompatActivity {
     @Override

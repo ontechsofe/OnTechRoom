@@ -1,16 +1,15 @@
-package ca.jame.ontechroom.db.user;
+package ca.jame.ontechroom.API.db.user;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.CursorWindow;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
 import java.util.Locale;
 
-import ca.jame.ontechroom.types.User;
+import ca.jame.ontechroom.API.types.User;
 
 public class UserDB extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
@@ -29,7 +28,7 @@ public class UserDB extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        String CREATE_USERS_TABLE = String.format( Locale.CANADA,
+        String CREATE_USERS_TABLE = String.format(Locale.CANADA,
                 "CREATE TABLE %s(%s INTEGER PRIMARY KEY, %s TEXT, %s TEXT, %s TEXT, %s TEXT, %s TEXT)",
                 TABLE_NAME,
                 COL_ID,

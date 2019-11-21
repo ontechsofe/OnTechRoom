@@ -1,4 +1,4 @@
-package ca.jame.ontechroom.types;
+package ca.jame.ontechroom.API.types;
 
 import java.io.Serializable;
 import java.util.ArrayList;

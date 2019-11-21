@@ -12,12 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".RoomViewActivity"></activity>
-        <activity android:name=".ViewBookingsActivity" />
-        <activity android:name=".BookingActivity" />
-        <activity android:name=".LoginActivity" />
-        <activity android:name=".MainActivity" />
-        <activity android:name=".LoadingActivity">
+        <activity android:name=".Activities.RoomViewActivity"></activity>
+        <activity android:name=".Activities.ViewBookingsActivity" />
+        <activity android:name=".Activities.BookingActivity" />
+        <activity android:name=".Activities.LoginActivity" />
+        <activity android:name=".Activities.MainActivity" />
+        <activity android:name=".Activities.LoadingActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -1,4 +1,4 @@
-package ca.jame.ontechroom;
+package ca.jame.ontechroom.Activities;
 
 import android.app.Dialog;
 import android.content.Intent;
@@ -10,9 +10,11 @@ import java.util.Map;
 import java.util.UUID;
 
 import androidx.appcompat.app.AppCompatActivity;
-import ca.jame.ontechroom.api.OTR;
-import ca.jame.ontechroom.db.user.UserDB;
-import ca.jame.ontechroom.types.User;
+
+import ca.jame.ontechroom.R;
+import ca.jame.ontechroom.API.OTR;
+import ca.jame.ontechroom.API.db.user.UserDB;
+import ca.jame.ontechroom.API.types.User;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -29,8 +31,6 @@ public class LoginActivity extends AppCompatActivity {
         dialog = new Dialog(LoginActivity.this);
     }
 
-    // Button click for logging in
-    // TODO: Add login logic
     public void doLogin(View view) {
         showDialog();
         new Thread(() -> {

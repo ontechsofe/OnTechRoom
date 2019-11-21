@@ -1,8 +1,8 @@
-package ca.jame.ontechroom;
+package ca.jame.ontechroom.API.OnTechRoom;
 
 import java.util.ArrayList;
 
-import ca.jame.ontechroom.types.Room;
+import ca.jame.ontechroom.API.types.Room;
 
 public class OnTechRoom {
     private static OnTechRoom instance = null;

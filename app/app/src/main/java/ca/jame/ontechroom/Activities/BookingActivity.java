@@ -1,16 +1,19 @@
-package ca.jame.ontechroom;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import ca.jame.ontechroom.types.Room;
+package ca.jame.ontechroom.Activities;
 
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.ArrayList;
-import java.util.Locale;
+
+import ca.jame.ontechroom.API.OnTechRoom.OnTechRoom;
+import ca.jame.ontechroom.R;
+import ca.jame.ontechroom.Adapters.RoomCardAdapter;
+import ca.jame.ontechroom.API.types.Room;
 
 public class BookingActivity extends AppCompatActivity {
 

@@ -1,4 +1,4 @@
-package ca.jame.ontechroom;
+package ca.jame.ontechroom.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,11 +7,13 @@ import android.view.View;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import java.util.Locale;
 
-import androidx.appcompat.app.AppCompatActivity;
-import ca.jame.ontechroom.db.user.UserDB;
-import ca.jame.ontechroom.types.User;
+import ca.jame.ontechroom.R;
+import ca.jame.ontechroom.API.db.user.UserDB;
+import ca.jame.ontechroom.API.types.User;
 
 public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
 

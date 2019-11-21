@@ -1,4 +1,4 @@
-package ca.jame.ontechroom;
+package ca.jame.ontechroom.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,7 +12,9 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.Locale;
 
 import androidx.appcompat.app.AppCompatActivity;
-import ca.jame.ontechroom.types.Room;
+
+import ca.jame.ontechroom.R;
+import ca.jame.ontechroom.API.types.Room;
 
 public class RoomViewActivity extends AppCompatActivity {
 
