@@ -7,18 +7,6 @@ const diskdb = require('diskdb');
 const moment = require('moment');
 const request = require("request");
 const cheerio = require("cheerio");
-const Prompt = require('prompt-password');
-const prompt = new Prompt({
-    type: 'password',
-    message: 'password: ',
-    name: 'password',
-    mask: '*'
-});
-
-const studentID = new Prompt({
-    message: 'student id: ',
-    name: 'id'
-});
 
 let cookie = request.jar();
 const baseURL = "https://rooms.library.dc-uoit.ca/uo_rooms/";
@@ -124,6 +112,12 @@ function getRoomData(roomName) {
     })
 }
 
+function getCalendarData(rawCalendar) {
+    return new Promise(((resolve, reject) => {
+        resolve(true);
+    }))
+}
+
 async function getRooms(calendar) {
     const $ = cheerio.load(calendar);
     let roomData = [];
@@ -135,23 +129,6 @@ async function getRooms(calendar) {
         roomData.push(r);
     }
     return roomData;
-}
-
-function getStudentID() {
-    return new Promise(((resolve, reject) => {
-        studentID.run().then(answers => {
-            console.log(answers);
-            resolve(answers);
-        });
-    }));
-}
-
-function getPassword() {
-    return new Promise(((resolve, reject) => {
-        prompt.run().then((answers) => {
-            resolve(answers)
-        });
-    }))
 }
 
 // async function x() {
@@ -215,6 +192,11 @@ app.get('/rooms', (req, res) => {
                 .then(calendar => getRooms(calendar)
                     .then(result => res.json(result)))));
 });
+
+app.get('/calendar', (req, res) => {
+    getStateData().then(data => postStateData(data).then(postContinueData => getDataForDate(postContinueData).then(calendar => getCalendarData(calendar).then(result => res.json(result)))));
+});
+
 
 app.post('/auth', (req, res) => {
     checkLoginOnMyCampus(req.body.id, req.body.password).then(name => {
