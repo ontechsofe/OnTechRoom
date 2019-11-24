@@ -38,6 +38,7 @@ public class LoginActivity extends AppCompatActivity {
             String pass = password.getText().toString();
             Map<String, Object> response = OTR.getInstance().authenticate(userID, pass);
             System.out.println(response);
+            assert response != null;
             if (response.containsKey("error")) {
                 hideDialog();
             } else {
