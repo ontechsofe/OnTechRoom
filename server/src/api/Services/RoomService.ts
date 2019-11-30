@@ -1,6 +1,5 @@
 import {Service} from "typedi";
 import {Room} from "../Types/Room";
-import {RoomDatabase} from "../Database/RoomDatabase";
 import {OTRService} from "./OTRService";
 
 
@@ -9,27 +8,16 @@ export class RoomService {
 
     constructor(
         private otrService: OTRService,
-        private roomDatabase: RoomDatabase
     ) {
-        this.updateRooms().then();
     }
 
-    public find(): Array<Room> {
-        return this.roomDatabase.getAllRooms();
+    public async find(): Promise<Array<Room>> {
+        return await this.getRoomsFromMyCampus();
     }
 
-    public findOne(id: string): Room | undefined {
-        return this.roomDatabase.getRoomById(id);
-    }
-
-    public newRoom(room: Room): void {
-        this.roomDatabase.addNewRoom(room);
-    }
-
-    public async updateRooms(): Promise<void> {
-        this.roomDatabase.clearAllRooms();
+    public async findOne(id: string): Promise<Room | undefined> {
         let rooms = await this.getRoomsFromMyCampus();
-        this.roomDatabase.addNewRooms(rooms);
+        return rooms.filter(e => e.name.toUpperCase() === id.toUpperCase())[0];
     }
 
     private async getRoomsFromMyCampus(): Promise<Array<Room>> {

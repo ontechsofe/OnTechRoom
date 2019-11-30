@@ -13,15 +13,15 @@ export class RoomController {
     }
 
     @Get()
-    @ResponseSchema(Room, { isArray: true })
-    public getAllRooms(): Array<Room> {
-        return this.roomService.find();
+    @ResponseSchema(Room, {isArray: true})
+    public async getAllRooms(): Promise<Array<Room>> {
+        return await this.roomService.find();
     }
 
     @Get('/:id')
     @OnUndefined(RoomNotFoundError)
     @ResponseSchema(Room)
-    public getRoom(@Param('id') id: string): Room | undefined {
-        return this.roomService.findOne(id);
+    public async getRoom(@Param('id') id: string): Promise<Room | undefined> {
+        return await this.roomService.findOne(id);
     }
 }
