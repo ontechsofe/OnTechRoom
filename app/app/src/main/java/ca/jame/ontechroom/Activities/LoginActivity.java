@@ -4,9 +4,11 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,8 +20,9 @@ import ca.jame.ontechroom.API.types.User;
 
 public class LoginActivity extends AppCompatActivity {
 
-    TextView id;
-    TextView password;
+    EditText id;
+    EditText password;
+    TextView error;
 
     Dialog dialog;
     @Override
@@ -28,29 +31,31 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         id = findViewById(R.id.idTxt);
         password = findViewById(R.id.passwordTxt);
+        error = findViewById(R.id.errotTxt);
         dialog = new Dialog(LoginActivity.this);
     }
 
     public void doLogin(View view) {
         showDialog();
         new Thread(() -> {
+            hideError();
             String userID = id.getText().toString();
             String pass = password.getText().toString();
-            Map<String, Object> response = OTR.getInstance().authenticate(userID, pass);
+            Map<String, String> response = OTR.getInstance().authenticate(userID, pass); // TODO: make this a real object so I don't have a nullable
             System.out.println(response);
-            assert response != null;
-            if (response.containsKey("error")) {
+            if (response.containsKey("message") && ((String) Objects.requireNonNull(response.get("message"))).contains("Invalid")) {
                 hideDialog();
+                showError("Error: Invalid login details!");
             } else {
                 UserDB userDB = new UserDB(getApplicationContext());
                 User u = new User();
-                u.firstName = ((Map<String, String>) response.get("name")).get("first");
-                u.lastName = ((Map<String, String>) response.get("name")).get("last");
+                u.firstName = response.get("first");
+                u.lastName = response.get("last");
                 u.uuid = UUID.randomUUID().toString();
                 u.studentId = userID;
                 u.password = pass;
                 userDB.addUserData(u);
-                dialog.dismiss();
+                hideDialog();
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
@@ -58,6 +63,19 @@ public class LoginActivity extends AppCompatActivity {
                 finish();
             }
         }).start();
+    }
+
+    private void showError(String message) {
+        runOnUiThread(() -> {
+            error.setText(message);
+            error.setVisibility(View.VISIBLE);
+        });
+    }
+
+    private void hideError() {
+        runOnUiThread(() -> {
+            error.setVisibility(View.INVISIBLE);
+        });
     }
 
     private void showDialog() {

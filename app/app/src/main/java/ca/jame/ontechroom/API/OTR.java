@@ -21,8 +21,8 @@ public class OTR {
         return instance;
     }
 
-//    private static final String BASE_URL = "http://10.0.2.2:3000"; // Loopback reference to localhost on root machine
-    private static final String BASE_URL = "http://api.otr.ontechsofe.tk";
+    private static final String BASE_URL = "http://10.0.2.2:3000/api"; // Loopback reference to localhost on root machine
+//    private static final String BASE_URL = "http://api.otr.ontechsofe.tk";
 
     private OTR() {
     }
@@ -37,12 +37,12 @@ public class OTR {
         return null;
     }
 
-    public Map<String, Object> authenticate(String id, String password) {
+    public Map<String, String> authenticate(String id, String password) {
         try {
             HashMap<String, String> payload = new HashMap<>();
             payload.put("id", id);
             payload.put("password", password);
-            return new Gson().fromJson(HTTPClient.post(String.format("%s/auth", BASE_URL), payload), new TypeToken<Map<String, Object>>() {
+            return new Gson().fromJson(HTTPClient.post(String.format("%s/auth/login", BASE_URL), payload), new TypeToken<Map<String, Object>>() {
             }.getType());
         } catch (IOException e) {
             e.printStackTrace();

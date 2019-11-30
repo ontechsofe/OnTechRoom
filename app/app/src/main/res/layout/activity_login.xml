@@ -57,9 +57,8 @@
 
                 <ImageView
                     android:id="@+id/imageView"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="150dp"
-                    android:layout_weight="1"
                     app:srcCompat="@drawable/shield" />
             </LinearLayout>
 
@@ -71,9 +70,8 @@
 
                 <TextView
                     android:id="@+id/textView2"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:fontFamily="@font/ubuntu"
                     android:text="Login"
                     android:textAlignment="center"
@@ -89,15 +87,33 @@
 
                 <TextView
                     android:id="@+id/textView"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:fontFamily="@font/ubuntu"
                     android:text="Login with your Banner ID"
                     android:textAlignment="center"
                     android:textColor="@color/colorBlack"
                     android:textSize="18sp"
                     android:textStyle="italic" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/errotTxt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/ubuntu"
+                    android:text="ERROR: invalid"
+                    android:textAlignment="center"
+                    android:textColor="#FF0000"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:visibility="invisible" />
             </LinearLayout>
 
             <LinearLayout

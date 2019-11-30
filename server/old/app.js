@@ -2,7 +2,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
-const port = 3000;
+const port = 3333;
 const diskdb = require('diskdb');
 const moment = require('moment');
 const request = require("request");
@@ -54,7 +54,6 @@ function postStateData(data) {
 }
 
 function getDataForDate(data) {
-    // Sunday, November 17, 2019
     let today = moment().format('dddd, MMMM DD, YYYY');
     let tomorrow = moment().add(1, 'days').format('dddd, MMMM DD, YYYY');
     data['__EVENTTARGET'] = "ctl00$ContentPlaceHolder1$RadioButtonListDateSelection$0";
@@ -113,9 +112,28 @@ function getRoomData(roomName) {
 }
 
 function getCalendarData(rawCalendar) {
+    let timeObject = {};
     return new Promise(((resolve, reject) => {
+        const $ = cheerio.load(rawCalendar);
+        let rows = $("table#ContentPlaceHolder1_Table1  tbody > tr");
+        rows.each((i, e) => {
+            let s = cheerio.load(e);
+            let sr = s("td:first-child")[0].children[0].children;
+            if (sr[0]) {
+                timeObject[sr[0].data] = [];
+                s("td:not(:first-child)").each((index, element) => {
+                    if (element.children[0].children[0].data) {
+                        console.log(element.children[0].children[0].data);
+                    } else if (element.children[0].children[0].children[0]) {
+                        console.log(element.children[0].children[0].children[0].data);
+                    } else {
+                        console.log("OPEN");
+                    }
+                })
+            }
+        });
         resolve(true);
-    }))
+}))
 }
 
 async function getRooms(calendar) {
@@ -138,7 +156,7 @@ async function getRooms(calendar) {
 //     let result = await getRooms(calendar);
 //     result.forEach(e => {
 //         console.log(e.name);
-//         db.rooms.update({name: e.name}, e, {multi: true, upsert: true})
+//         DB.rooms.update({name: e.name}, e, {multi: true, upsert: true})
 //     });
 //
 //     const $ = cheerio.load(calendar);
