@@ -3,3 +3,4 @@ node_modules/
 /server/combined.log
 /server/exceptions.log
 /server/data/
+.env

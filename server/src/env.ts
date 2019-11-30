@@ -18,6 +18,7 @@ export const env = {
         schema: getOsEnv('APP_SCHEMA'),
         routePrefix: getOsEnv('APP_ROUTE_PREFIX'),
         port: normalizePort(process.env.PORT || getOsEnv('APP_PORT')),
+        externalPort: getOsEnv('APP_EXTERNAL_PORT'),
         dirs: {
             controllers: getOsPaths('CONTROLLERS')
         },

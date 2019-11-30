@@ -33,7 +33,7 @@ export const swaggerLoader: MicroframeworkLoader = (settings: MicroframeworkSett
 
         swaggerFile.servers = [
             {
-                url: `${env.app.schema}://${env.app.host}:${env.app.port}${env.app.routePrefix}`,
+                url: `${env.app.schema}://${env.app.host}:${env.app.externalPort}${env.app.routePrefix}`,
             },
         ];
 
