@@ -16,7 +16,7 @@ const roomURL = baseURL + 'room.aspx?room=';
 const dbs = ['rooms'];
 const db = diskdb.connect('./', dbs);
 
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({extended: true}));
 
 function getStateData() {
     return new Promise((resolve, reject) => {
@@ -111,29 +111,56 @@ function getRoomData(roomName) {
     })
 }
 
+const convertArrayToObject = (array) => {
+    let g = {};
+    array.forEach((e) => {
+        g[e] = "";
+    });
+    return g;
+};
+
 function getCalendarData(rawCalendar) {
     let timeObject = {};
-    return new Promise(((resolve, reject) => {
+    let roomNames = [];
+    return new Promise((resolve, reject) => {
         const $ = cheerio.load(rawCalendar);
-        let rows = $("table#ContentPlaceHolder1_Table1  tbody > tr");
-        rows.each((i, e) => {
+        $(`table#ContentPlaceHolder1_Table1  tbody > tr:first-child td a`)
+            .each((i, e) => roomNames.push(e.children[0].data));
+        $(`table#ContentPlaceHolder1_Table1  tbody > tr`).each((i, e) => {
             let s = cheerio.load(e);
-            let sr = s("td:first-child")[0].children[0].children;
+            let sr = s(`td:first-child`)[0].children[0].children;
             if (sr[0]) {
-                timeObject[sr[0].data] = [];
-                s("td:not(:first-child)").each((index, element) => {
+                timeObject[sr[0].data] = convertArrayToObject(roomNames);
+                s(`td:not(:first-child)`).each((index, element) => {
+                    let tableString = "";
                     if (element.children[0].children[0].data) {
-                        console.log(element.children[0].children[0].data);
+                        tableString = element.children[0].children[0].data;
                     } else if (element.children[0].children[0].children[0]) {
-                        console.log(element.children[0].children[0].children[0].data);
+                        tableString = `$$${element.children[0].children[0].children[0].data}$$`;
                     } else {
-                        console.log("OPEN");
+                        tableString = "=OPEN=";
                     }
+                    timeObject[sr[0].data][roomNames[index]] = tableString;
                 })
             }
         });
-        resolve(true);
-}))
+        let previousTime = null;
+        for (let key in timeObject) {
+            if (!timeObject.hasOwnProperty(key)) continue;
+            let obj = timeObject[key];
+            for (let prop in obj) {
+                if (!obj.hasOwnProperty(prop)) continue;
+                if (previousTime !== null) {
+                    if (timeObject[previousTime][prop] !== "\"" && timeObject[key][prop] === "\"") {
+                        timeObject[key][prop] = timeObject[previousTime][prop];
+                    }
+                }
+            }
+            previousTime = key;
+        }
+        console.table(timeObject);
+        resolve(timeObject);
+    })
 }
 
 async function getRooms(calendar) {

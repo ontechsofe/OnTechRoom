@@ -2,6 +2,7 @@ import {Service} from "typedi";
 import request from "request";
 import moment from "moment";
 import cheerio from 'cheerio';
+import {CalendarDay} from "../Types/DayEnum";
 
 @Service()
 export class OTRService {
@@ -50,12 +51,6 @@ export class OTRService {
         });
     }
 
-    public getCalendarData(rawCalendar) {
-        return new Promise(((resolve, reject) => {
-            resolve(true);
-        }))
-    }
-
     public getStateData(): Promise<{}> {
         return new Promise((resolve, reject) => {
             request.get({
@@ -91,12 +86,19 @@ export class OTRService {
         })
     }
 
-    public getDataForDate(data): Promise<string> {
-        let today = moment().format('dddd, MMMM DD, YYYY');
-        // let tomorrow = moment().add(1, 'days').format('dddd, MMMM DD, YYYY');
+    public getDataForDate(data, date: CalendarDay): Promise<string> {
+        let dateValue = null;
+        switch (date) {
+            case CalendarDay.TODAY:
+                dateValue = moment().format('dddd, MMMM DD, YYYY');
+                break;
+            case CalendarDay.TOMORROW:
+                dateValue = moment().add(1, 'days').format('dddd, MMMM DD, YYYY');
+                break;
+        }
         data['__EVENTTARGET'] = "ctl00$ContentPlaceHolder1$RadioButtonListDateSelection$0";
         data['__EVENTARGUMENT'] = "";
-        data['ctl00$ContentPlaceHolder1$RadioButtonListDateSelection'] = today;
+        data['ctl00$ContentPlaceHolder1$RadioButtonListDateSelection'] = dateValue;
         return new Promise((resolve, reject) => {
             request.post({
                 url: this.calendarURL,
@@ -152,7 +154,7 @@ export class OTRService {
     public async getRooms(): Promise<Array<any>> {
         let stateData = await this.getStateData();
         let postContinueData = await this.postStateData(stateData);
-        let calendar: string = await this.getDataForDate(postContinueData);
+        let calendar: string = await this.getDataForDate(postContinueData, CalendarDay.TODAY);
         const $ = cheerio.load(calendar);
         let roomData = [];
         let roomNames = [];
@@ -165,4 +167,80 @@ export class OTRService {
         return roomData;
     }
 
+    public convertArrayToObject(array) {
+        let g = {};
+        array.forEach((e) => {
+            g[e] = "";
+        });
+        return g;
+    };
+
+    public getCalendarData(rawCalendar) {
+        let timeObject = {};
+        let roomNames = [];
+        return new Promise((resolve, reject) => {
+            const $ = cheerio.load(rawCalendar);
+            $(`table#ContentPlaceHolder1_Table1  tbody > tr:first-child td a`)
+                .each((i, e) => roomNames.push(e.children[0].data));
+            $(`table#ContentPlaceHolder1_Table1  tbody > tr`).each((i, e) => {
+                let s = cheerio.load(e);
+                let sr = s(`td:first-child`)[0].children[0].children;
+                if (sr[0]) {
+                    let t = sr[0].data.trim();
+                    timeObject[t] = this.convertArrayToObject(roomNames);
+                    s(`td:not(:first-child)`).each((index, element) => {
+                        let tableString = "";
+                        if (element.children[0].children[0].data) {
+                            tableString = element.children[0].children[0].data;
+                        } else if (element.children[0].children[0].children[0]) {
+                            tableString = element.children[0].children[0].children[0].data;
+                        } else {
+                            tableString = "=OPEN=";
+                        }
+                        timeObject[t][roomNames[index]] = tableString;
+                    })
+                }
+            });
+            let previousTime = null;
+            for (let key in timeObject) {
+                if (!timeObject.hasOwnProperty(key)) continue;
+                let obj = timeObject[key];
+                for (let prop in obj) {
+                    if (!obj.hasOwnProperty(prop)) continue;
+                    if (previousTime !== null) {
+                        if (timeObject[previousTime][prop] !== "\"" && timeObject[key][prop] === "\"") {
+                            timeObject[key][prop] = timeObject[previousTime][prop];
+                        }
+                    }
+                }
+                previousTime = key;
+            }
+            resolve(timeObject);
+        })
+    }
+
+    public async getCalendarByDay(date: CalendarDay): Promise<{}> {
+        let stateData = await this.getStateData();
+        let postContinueData = await this.postStateData(stateData);
+        let rawCalendar: string = await this.getDataForDate(postContinueData, date);
+        let calendar = await this.getCalendarData(rawCalendar);
+        return calendar;
+    }
+
+    public async getCalendarByRoom(day: CalendarDay) {
+        let calendar = await this.getCalendarByDay(day);
+        let roomObject = {};
+        for (let key in calendar) {
+            if (!calendar.hasOwnProperty(key)) continue;
+            let obj = calendar[key];
+            for (let prop in obj) {
+                if (!obj.hasOwnProperty(prop)) continue;
+                if (!(prop in roomObject)) {
+                    roomObject[prop] = {};
+                }
+                roomObject[prop][key] = calendar[key][prop];
+            }
+        }
+        return roomObject;
+    }
 }

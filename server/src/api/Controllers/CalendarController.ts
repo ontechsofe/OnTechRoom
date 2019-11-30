@@ -1,5 +1,6 @@
 import {Get, JsonController} from 'routing-controllers';
-import {CalendarDay, CalendarService} from "../Services/CalendarService";
+import {CalendarService} from "../Services/CalendarService";
+import {CalendarDay} from "../Types/DayEnum";
 
 @JsonController('/calendar')
 export class CalendarController {
@@ -10,22 +11,22 @@ export class CalendarController {
     }
 
     @Get('/room/today')
-    public getCalendarTodayByRoom() {
-        this.calendarService.getCalendarByRoom(CalendarDay.TODAY);
+    public async getCalendarTodayByRoom() {
+        return await this.calendarService.getCalendarByRoom(CalendarDay.TODAY);
     }
 
     @Get('/room/tomorrow')
-    public getCalendarTomorrowByRoom() {
-        this.calendarService.getCalendarByRoom(CalendarDay.TOMORROW);
+    public async getCalendarTomorrowByRoom() {
+        return await this.calendarService.getCalendarByRoom(CalendarDay.TOMORROW);
     }
 
     @Get('/time/today')
-    public getCalendarTodayByTime() {
-        this.calendarService.getCalendarByTime(CalendarDay.TODAY);
+    public async getCalendarTodayByTime() {
+        return await this.calendarService.getCalendarByTime(CalendarDay.TODAY);
     }
 
     @Get('/time/tomorrow')
-    public getCalendarTomorrowByTime() {
-        this.calendarService.getCalendarByTime(CalendarDay.TOMORROW);
+    public async getCalendarTomorrowByTime() {
+        return await this.calendarService.getCalendarByTime(CalendarDay.TOMORROW);
     }
 }

@@ -1,2 +1,5 @@
 node_modules/
 /server/dist/
+/server/combined.log
+/server/exceptions.log
+/server/data/

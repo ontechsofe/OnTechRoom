@@ -1,18 +1,19 @@
+import {OTRService} from "./OTRService";
+import {Service} from "typedi";
+import {CalendarDay} from "../Types/DayEnum";
 
-export enum CalendarDay {
-    TODAY,
-    TOMORROW
-}
-
+@Service()
 export class CalendarService {
-    constructor() {
+    constructor(
+        private otrService: OTRService
+    ) {
     }
 
-    public getCalendarByTime(day: CalendarDay) {
-
+    public async getCalendarByTime(day: CalendarDay) {
+        return await this.otrService.getCalendarByDay(day);
     }
 
-    public getCalendarByRoom(day: CalendarDay) {
-
+    public async getCalendarByRoom(day: CalendarDay) {
+        return await this.otrService.getCalendarByRoom(day);
     }
 }
