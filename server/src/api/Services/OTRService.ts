@@ -310,8 +310,9 @@ export class OTRService {
     public async bookRoom(id: string, password: string, date: CalendarDay, time: string, room: string, bookingType: RoomBookingEnum, code: string, name: string, length: BookingLengthEnum): Promise<{}> {
         try {
             let retState = RoomBookingEnum.NOT_BOOKED;
+            let errorMessage = "";
             const {browser, page} = await this.getCalendar(date);
-
+            console.log(bookingType);
             switch (bookingType) {
                 case RoomBookingEnum.NOT_BOOKED:
                     await this.clickButton(page, `a[title="Time: ${time}. Room no.: ${room.toUpperCase()}"]`);
@@ -333,18 +334,24 @@ export class OTRService {
                     }
                     await this.clickButton(page, '#ContentPlaceHolder1_RadioButtonListInstitutions_1');
                     await this.writeToTextbox(page, '#ContentPlaceHolder1_TextBoxNotes', 'Booked using OTR!');
-                    await this.writeToTextbox(page, '#ContentPlaceHolder1_TextBoxID', id);
+                    await this.writeToTextbox(page, '#ContentPlaceHolder1_TextBoxStudentID', id);
                     await this.writeToTextbox(page, '#ContentPlaceHolder1_TextBoxPassword', password);
                     await this.clickButton(page, '#ContentPlaceHolder1_ButtonReserve');
-                    await page.waitForSelector('#ContentPlaceHolder1_LabelMessage');
-                    let bodyHandle = await page.$('#ContentPlaceHolder1_LabelMessage');
-                    const message = await page.evaluate(body => body.innerHTML, bodyHandle);
-                    if (message.includes('allocated to you')) {
-                        retState = RoomBookingEnum.INCOMPLETE_BOOKING;
-                    } else if (message.includes('Success')) {
-                        retState = RoomBookingEnum.BOOKING_COMPLETED;
-                    } else {
+                    if (await page.$("#ContentPlaceHolder1_LabelError") !== null) {
+                        const element = await page.$("#ContentPlaceHolder1_LabelError");
+                        errorMessage = await page.evaluate(element => element.textContent, element);
                         retState = RoomBookingEnum.NOT_BOOKED;
+                    } else {
+                        await page.waitForSelector('#ContentPlaceHolder1_LabelMessage');
+                        let bodyHandle = await page.$('#ContentPlaceHolder1_LabelMessage');
+                        const message = await page.evaluate(body => body.innerHTML, bodyHandle);
+                        if (message.includes('allocated to you')) {
+                            retState = RoomBookingEnum.INCOMPLETE_BOOKING;
+                        } else if (message.includes('Success')) {
+                            retState = RoomBookingEnum.BOOKING_COMPLETED;
+                        } else {
+                            retState = RoomBookingEnum.NOT_BOOKED;
+                        }
                     }
                     break;
                 case RoomBookingEnum.INCOMPLETE_BOOKING:
@@ -370,9 +377,9 @@ export class OTRService {
                     break;
             }
             await browser.close();
-            return {bookingState: retState};
+            return {bookingState: retState, error: errorMessage};
         } catch (e) {
-            logger.error(e);
+            logger.error(e.stack);
         }
         return {bookingState: RoomBookingEnum.NOT_BOOKED};
     }
