@@ -21,8 +21,8 @@ public class OTR {
         return instance;
     }
 
-    private static final String BASE_URL = "http://10.0.2.2:3000/api"; // Loopback reference to localhost on root machine
-//    private static final String BASE_URL = "http://api.otr.ontechsofe.tk";
+    private static final String BASE_URL = "http://10.0.2.2:12345/api"; // Loopback reference to localhost on root machine
+//    private static final String BASE_URL = "http://api.otr.ontechsofe.tk/api";
 
     private OTR() {
     }

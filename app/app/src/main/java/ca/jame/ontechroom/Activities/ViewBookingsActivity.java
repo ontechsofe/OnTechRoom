@@ -1,10 +1,9 @@
 package ca.jame.ontechroom.Activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.appcompat.app.AppCompatActivity;
 import ca.jame.ontechroom.R;
 
 public class ViewBookingsActivity extends AppCompatActivity {

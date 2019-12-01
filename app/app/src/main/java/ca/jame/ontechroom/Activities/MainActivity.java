@@ -7,13 +7,12 @@ import android.view.View;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import java.util.Locale;
 
-import ca.jame.ontechroom.R;
+import androidx.appcompat.app.AppCompatActivity;
 import ca.jame.ontechroom.API.db.user.UserDB;
 import ca.jame.ontechroom.API.types.User;
+import ca.jame.ontechroom.R;
 
 public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
 
@@ -52,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 //    }
 
     public void doBookingActivity(View view) {
-        Intent intent = new Intent(MainActivity.this, BookingActivity.class);
+        Intent intent = new Intent(MainActivity.this, JoinOrNewActivity.class);
         startActivity(intent);
         overridePendingTransition(R.anim.slide_out_left, R.anim.slide_in_left);
     }

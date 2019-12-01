@@ -4,15 +4,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import java.util.ArrayList;
 
-import ca.jame.ontechroom.API.OnTechRoom.OnTechRoom;
-import ca.jame.ontechroom.R;
+import androidx.appcompat.app.AppCompatActivity;
 import ca.jame.ontechroom.API.OTR;
+import ca.jame.ontechroom.API.OnTechRoom.OnTechRoom;
 import ca.jame.ontechroom.API.db.user.UserDB;
 import ca.jame.ontechroom.API.types.Room;
+import ca.jame.ontechroom.R;
 
 public class LoadingActivity extends AppCompatActivity {
     @Override

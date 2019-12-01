@@ -4,16 +4,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import java.util.ArrayList;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.util.ArrayList;
-
 import ca.jame.ontechroom.API.OnTechRoom.OnTechRoom;
-import ca.jame.ontechroom.R;
-import ca.jame.ontechroom.Adapters.RoomCardAdapter;
 import ca.jame.ontechroom.API.types.Room;
+import ca.jame.ontechroom.Adapters.RoomCardAdapter;
+import ca.jame.ontechroom.R;
 
 public class BookingActivity extends AppCompatActivity {
 

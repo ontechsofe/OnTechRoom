@@ -5,6 +5,8 @@ import cheerio from 'cheerio';
 import puppeteer from 'puppeteer';
 import {CalendarDay} from "../Types/DayEnum";
 import {RoomBookingEnum} from "../Types/RoomBookingEnum";
+import logger from "../../Util/Log";
+import {BookingLengthEnum} from "../Types/BookingLengthEnum";
 
 @Service()
 export class OTRService {
@@ -249,7 +251,7 @@ export class OTRService {
     public async getBookings(id: string, password: string) {
         const browser = await puppeteer.launch();
         const page = await browser.newPage();
-        await page.goto('https://rooms.library.dc-uoit.ca/uo_rooms/myreservations.aspx');
+        await page.goto(`https://rooms.library.dc-uoit.ca/uo_rooms/myreservations.aspx`);
         const SEL_id = '#ContentPlaceHolder1_TextBoxID';
         const SEL_password = '#ContentPlaceHolder1_TextBoxPassword';
         const SEL_bookingsButton = '#ContentPlaceHolder1_ButtonListBookings';
@@ -294,96 +296,103 @@ export class OTRService {
         return bookingData;
     }
 
-    public async bookRoom(id: string, password: string, date: CalendarDay, time: string, room: string, bookingType: RoomBookingEnum, code: string, name: string): Promise<{}> {
-        let retState = RoomBookingEnum.NOT_BOOKED;
+    public async leaveBooking(id: string, password: string, date: CalendarDay, time: string, room: string) {
+        const {browser, page} = await this.getCalendar(date);
+        await this.clickButton(page, `td[title="Time: ${time}. Room no.: ${room.toUpperCase()}"] > a`);
+        await this.writeToTextbox(page, '#ContentPlaceHolder1_TextBoxStudentID', id);
+        await this.writeToTextbox(page, '#ContentPlaceHolder1_TextBoxPassword', password);
+        await page.waitForSelector("#ContentPlaceHolder1_ButtonLeaveGroup");
+        await page.click("#ContentPlaceHolder1_ButtonLeaveGroup");
+        await browser.close();
+        return {bookingState: RoomBookingEnum.INCOMPLETE_BOOKING};
+    }
+
+    public async bookRoom(id: string, password: string, date: CalendarDay, time: string, room: string, bookingType: RoomBookingEnum, code: string, name: string, length: BookingLengthEnum): Promise<{}> {
+        try {
+            let retState = RoomBookingEnum.NOT_BOOKED;
+            const {browser, page} = await this.getCalendar(date);
+
+            switch (bookingType) {
+                case RoomBookingEnum.NOT_BOOKED:
+                    await this.clickButton(page, `a[title="Time: ${time}. Room no.: ${room.toUpperCase()}"]`);
+                    await this.writeToTextbox(page, '#ContentPlaceHolder1_TextBoxName', name);
+                    await this.writeToTextbox(page, '#ContentPlaceHolder1_TextBoxGroupCode', code);
+                    switch (length) {
+                        case BookingLengthEnum.L30MINUTES:
+                            await this.clickButton(page, '#ContentPlaceHolder1_RadioButtonListDuration_0');
+                            break;
+                        case BookingLengthEnum.L1HOUR:
+                            await this.clickButton(page, '#ContentPlaceHolder1_RadioButtonListDuration_1');
+                            break;
+                        case BookingLengthEnum.L1HOUR_30MINUTES:
+                            await this.clickButton(page, '#ContentPlaceHolder1_RadioButtonListDuration_2');
+                            break;
+                        case BookingLengthEnum.L2HOURS:
+                            await this.clickButton(page, '#ContentPlaceHolder1_RadioButtonListDuration_3');
+                            break;
+                    }
+                    await this.clickButton(page, '#ContentPlaceHolder1_RadioButtonListInstitutions_1');
+                    await this.writeToTextbox(page, '#ContentPlaceHolder1_TextBoxNotes', 'Booked using OTR!');
+                    await this.writeToTextbox(page, '#ContentPlaceHolder1_TextBoxID', id);
+                    await this.writeToTextbox(page, '#ContentPlaceHolder1_TextBoxPassword', password);
+                    await this.clickButton(page, '#ContentPlaceHolder1_ButtonReserve');
+                    await page.waitForSelector('#ContentPlaceHolder1_LabelMessage');
+                    let bodyHandle = await page.$('#ContentPlaceHolder1_LabelMessage');
+                    const message = await page.evaluate(body => body.innerHTML, bodyHandle);
+                    if (message.includes('allocated to you')) {
+                        retState = RoomBookingEnum.INCOMPLETE_BOOKING;
+                    } else if (message.includes('Success')) {
+                        retState = RoomBookingEnum.BOOKING_COMPLETED;
+                    } else {
+                        retState = RoomBookingEnum.NOT_BOOKED;
+                    }
+                    break;
+                case RoomBookingEnum.INCOMPLETE_BOOKING:
+                    await this.clickButton(page, `a[title="${time} / ${room.toUpperCase()}. Incomplete reservation. This slot is open for reservation"]`);
+                    await this.clickButton(page, `input[value="${code}"]`);
+                    await this.clickButton(page, "#ContentPlaceHolder1_ButtonJoinOrCreate");
+                    await this.writeToTextbox(page, '#ContentPlaceHolder1_TextBoxID', id);
+                    await this.writeToTextbox(page, '#ContentPlaceHolder1_TextBoxPassword', password);
+                    await this.clickButton(page, "#ContentPlaceHolder1_ButtonJoin");
+                    await page.waitForSelector('#ContentPlaceHolder1_LabelMessage');
+                    let body = await page.$('#ContentPlaceHolder1_LabelMessage');
+                    const m = await page.evaluate(body => body.innerHTML, body);
+                    if (m.includes('allocated to you')) {
+                        retState = RoomBookingEnum.INCOMPLETE_BOOKING;
+                    } else if (m.includes('Success')) {
+                        retState = RoomBookingEnum.BOOKING_COMPLETED;
+                    } else {
+                        retState = RoomBookingEnum.NOT_BOOKED;
+                    }
+                    break;
+                case RoomBookingEnum.BOOKING_COMPLETED:
+                    retState = RoomBookingEnum.BOOKING_COMPLETED;
+                    break;
+            }
+            await browser.close();
+            return {bookingState: retState};
+        } catch (e) {
+            logger.error(e);
+        }
+        return {bookingState: RoomBookingEnum.NOT_BOOKED};
+    }
+
+    private async getCalendar(date: CalendarDay) {
         const browser = await puppeteer.launch();
         const page = await browser.newPage();
         await page.goto('https://rooms.library.dc-uoit.ca/uo_rooms/calendar.aspx');
-        const SEL_continueButton = '#ContentPlaceHolder1_ButtonContinue';
-        await page.waitForSelector(SEL_continueButton);
-        await page.click(SEL_continueButton);
-        const SEL_todayButton = '#ContentPlaceHolder1_RadioButtonListDateSelection_0';
-        await page.waitForSelector(SEL_todayButton);
-        await page.click(SEL_todayButton);
+        await this.clickButton(page, '#ContentPlaceHolder1_ButtonContinue');
+        await this.clickButton(page, (date === CalendarDay.TODAY ? '#ContentPlaceHolder1_RadioButtonListDateSelection_0' : '#ContentPlaceHolder1_RadioButtonListDateSelection_1'));
+        return {browser, page};
+    }
 
-        switch (bookingType) {
-            case RoomBookingEnum.NOT_BOOKED:
-                const SEL_date = `a[title="Time: ${time}. Room no.: ${room.toUpperCase()}"]`;
-                const SEL_groupName = '#ContentPlaceHolder1_TextBoxName';
-                const SEL_groupCode = '#ContentPlaceHolder1_TextBoxGroupCode';
-                const SEL_duration = '#ContentPlaceHolder1_RadioButtonListDuration_3';
-                const SEL_institution = '#ContentPlaceHolder1_RadioButtonListInstitutions_1';
-                const SEL_notes = '#ContentPlaceHolder1_TextBoxNotes';
-                const SEL_id = '#ContentPlaceHolder1_TextBoxID';
-                const SEL_password = '#ContentPlaceHolder1_TextBoxPassword';
-                const SEL_bookButton = '#ContentPlaceHolder1_ButtonReserve';
-                const SEL_message = '#ContentPlaceHolder1_LabelMessage';
-                await page.waitForSelector(SEL_date);
-                await page.click(SEL_date);
-                await page.waitForSelector(SEL_groupName);
-                await page.type(SEL_groupName, name);
-                await page.waitForSelector(SEL_groupCode);
-                await page.type(SEL_groupCode, code);
-                await page.waitForSelector(SEL_duration);
-                await page.click(SEL_duration);
-                await page.waitForSelector(SEL_institution);
-                await page.click(SEL_institution);
-                await page.waitForSelector(SEL_notes);
-                await page.type(SEL_notes, 'Booked using OTR!');
-                await page.waitForSelector(SEL_id);
-                await page.type(SEL_id, id);
-                await page.waitForSelector(SEL_password);
-                await page.type(SEL_password, password);
-                await page.waitForSelector(SEL_bookButton);
-                await page.click(SEL_bookButton);
-                await page.waitForSelector(SEL_message);
-                let bodyHandle = await page.$(SEL_message);
-                const message = await page.evaluate(body => body.innerHTML, bodyHandle);
-                if (message.includes('allocated to you')) {
-                    console.log("Booking made... still need additional people");
-                    retState = RoomBookingEnum.INCOMPLETE_BOOKING;
-                } else if (message.includes('Success')) {
-                    retState = RoomBookingEnum.BOOKING_COMPLETED;
-                } else {
-                    retState = RoomBookingEnum.NOT_BOOKED;
-                }
-                break;
-            case RoomBookingEnum.INCOMPLETE_BOOKING:
-                const SEL_calEntry = `a[title="${time} / ${room.toUpperCase()}. Incomplete reservation. This slot is open for reservation"]`;
-                await page.waitForSelector(SEL_calEntry);
-                await page.click(SEL_calEntry);
-                const SEL_joinGroupCode = `input[value="${code}"]`;
-                await page.waitForSelector(SEL_joinGroupCode);
-                await page.click(SEL_joinGroupCode);
-                const SEL_createOrJoinButton = "#ContentPlaceHolder1_ButtonJoinOrCreate";
-                await page.waitForSelector(SEL_createOrJoinButton);
-                await page.click(SEL_createOrJoinButton);
-                const SEL_idTxt = '#ContentPlaceHolder1_TextBoxID';
-                await page.waitForSelector(SEL_idTxt);
-                await page.type(SEL_idTxt, id);
-                const SEL_passwordTxt = '#ContentPlaceHolder1_TextBoxPassword';
-                await page.waitForSelector(SEL_passwordTxt);
-                await page.type(SEL_passwordTxt, password);
-                const SEL_joinRoomButton = "#ContentPlaceHolder1_ButtonJoin";
-                await page.waitForSelector(SEL_joinRoomButton);
-                await page.click(SEL_joinRoomButton);
-                const SEL_messageTxt = '#ContentPlaceHolder1_LabelMessage';
-                await page.waitForSelector(SEL_messageTxt);
-                let body = await page.$(SEL_messageTxt);
-                const m = await page.evaluate(body => body.innerHTML, body);
-                if (m.includes('allocated to you')) {
-                    console.log("Booking made... still need additional people");
-                    retState = RoomBookingEnum.INCOMPLETE_BOOKING;
-                } else if (m.includes('Success')) {
-                    retState = RoomBookingEnum.BOOKING_COMPLETED;
-                } else {
-                    retState = RoomBookingEnum.NOT_BOOKED;
-                }
-                break;
-            case RoomBookingEnum.BOOKING_COMPLETED:
-                retState = RoomBookingEnum.BOOKING_COMPLETED;
-        }
-        await browser.close();
-        return {bookingState: retState};
+    private async writeToTextbox(page, selector: string, data: string) {
+        await page.waitForSelector(selector);
+        await page.type(selector, data);
+    }
+
+    private async clickButton(page, selector: string) {
+        await page.waitForSelector(selector);
+        await page.click(selector);
     }
 }

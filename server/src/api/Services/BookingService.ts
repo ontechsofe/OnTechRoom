@@ -2,6 +2,7 @@ import {Service} from "typedi";
 import {OTRService} from "./OTRService";
 import {CalendarDay} from "../Types/DayEnum";
 import {RoomBookingEnum} from "../Types/RoomBookingEnum";
+import {BookingLengthEnum} from "../Types/BookingLengthEnum";
 
 @Service()
 export class BookingService {
@@ -11,8 +12,12 @@ export class BookingService {
     ) {
     }
 
-    public async makeBooking(id: string, password: string, date: CalendarDay, time: string, room: string, bookingType: RoomBookingEnum, code: string, name: string) {
-        return await this.otrService.bookRoom(id, password, date, time, room, bookingType, code, name);
+    public async makeBooking(id: string, password: string, date: CalendarDay, time: string, room: string, bookingType: RoomBookingEnum, code: string, name: string, length: BookingLengthEnum) {
+        return await this.otrService.bookRoom(id, password, date, time, room, bookingType, code, name, length);
+    }
+
+    public async leaveBooking(id: string, password: string, date: CalendarDay, time: string, room: string) {
+        return await this.otrService.leaveBooking(id, password, date, time, room);
     }
 
     public async getPreviousBookings(id: string, password: string) {

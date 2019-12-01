@@ -12,9 +12,8 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.Locale;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import ca.jame.ontechroom.R;
 import ca.jame.ontechroom.API.types.Room;
+import ca.jame.ontechroom.R;
 
 public class RoomViewActivity extends AppCompatActivity {
 

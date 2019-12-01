@@ -12,11 +12,10 @@ import java.util.Objects;
 import java.util.UUID;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import ca.jame.ontechroom.R;
 import ca.jame.ontechroom.API.OTR;
 import ca.jame.ontechroom.API.db.user.UserDB;
 import ca.jame.ontechroom.API.types.User;
+import ca.jame.ontechroom.R;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -25,6 +24,7 @@ public class LoginActivity extends AppCompatActivity {
     TextView error;
 
     Dialog dialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

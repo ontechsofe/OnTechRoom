@@ -187,21 +187,6 @@ async function getRooms(calendar) {
     return roomData;
 }
 
-// async function x() {
-//     let data = await getStateData();
-//     let postContinueData = await postStateData(data);
-//     let calendar = await getDataForDate(postContinueData);
-//     let result = await getRooms(calendar);
-//     result.forEach(e => {
-//         console.log(e.name);
-//         DB.rooms.update({name: e.name}, e, {multi: true, upsert: true})
-//     });
-//
-//     const $ = cheerio.load(calendar);
-//     let calendarTable = $("table#ContentPlaceHolder1_Table1  tbody tr");
-//
-// }
-
 function checkLoginOnMyCampus(username, password) {
     const LOGIN_URL = 'http://portal.mycampus.ca/cp/home/login';
     const BASE_URL = 'http://portal.mycampus.ca/cp/ip/login?sys=sct&url=';
@@ -254,27 +239,6 @@ const makeBooking = (time, room, jar) => {
         });
     }))
 };
-
-// request.post({
-//     url: bookURL,
-//     formData: PAYLOAD,
-//     jar: cookie,
-//     followRedirect: true,
-//     headers: {
-//         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
-//     }
-// }, (error, response, body) => {
-//     request.get({
-//         url: getFormURL,
-//         jar: cookie,
-//         followRedirect: true,
-//         headers: {
-//             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
-//         }
-//     }, (er, re, bo) => {
-//         resolve(bo);
-//     });
-// });
 
 app.get('/', (req, res) => {
     return res.json({data: 'Hello World!'});
