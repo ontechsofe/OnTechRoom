@@ -2,7 +2,9 @@ import {Service} from "typedi";
 import request from "request";
 import moment from "moment";
 import cheerio from 'cheerio';
+import puppeteer from 'puppeteer';
 import {CalendarDay} from "../Types/DayEnum";
+import {RoomBookingEnum} from "../Types/RoomBookingEnum";
 
 @Service()
 export class OTRService {
@@ -180,9 +182,9 @@ export class OTRService {
         let roomNames = [];
         return new Promise((resolve, reject) => {
             const $ = cheerio.load(rawCalendar);
-            $(`table#ContentPlaceHolder1_Table1  tbody > tr:first-child td a`)
+            $(`table#ContentPlaceHolder1_Table1 tbody > tr:first-child td a`)
                 .each((i, e) => roomNames.push(e.children[0].data));
-            $(`table#ContentPlaceHolder1_Table1  tbody > tr`).each((i, e) => {
+            $(`table#ContentPlaceHolder1_Table1 tbody > tr`).each((i, e) => {
                 let s = cheerio.load(e);
                 let sr = s(`td:first-child`)[0].children[0].children;
                 if (sr[0]) {
@@ -242,5 +244,146 @@ export class OTRService {
             }
         }
         return roomObject;
+    }
+
+    public async getBookings(id: string, password: string) {
+        const browser = await puppeteer.launch();
+        const page = await browser.newPage();
+        await page.goto('https://rooms.library.dc-uoit.ca/uo_rooms/myreservations.aspx');
+        const SEL_id = '#ContentPlaceHolder1_TextBoxID';
+        const SEL_password = '#ContentPlaceHolder1_TextBoxPassword';
+        const SEL_bookingsButton = '#ContentPlaceHolder1_ButtonListBookings';
+        const SEL_bookingTable = '#ContentPlaceHolder1_TablePast';
+
+        await page.waitForSelector(SEL_id);
+        await page.type(SEL_id, id);
+
+        await page.waitForSelector(SEL_password);
+        await page.type(SEL_password, password);
+
+        await page.waitForSelector(SEL_bookingsButton);
+        await page.click(SEL_bookingsButton);
+
+        await page.waitForSelector(SEL_bookingTable);
+        let bodyHandle = await page.$('html');
+        const body = await page.evaluate(body => body.innerHTML, bodyHandle);
+        let $ = cheerio.load(body);
+        let bookingData = [];
+        let swst = 0;
+        let bookingIndex = 0;
+        $(SEL_bookingTable + ' tr:not(:first-child) > td').each(((index, element) => {
+            let data = element.children[0].data;
+            switch (swst) {
+                case 0:
+                    bookingData.push({
+                        room: data
+                    });
+                    swst++;
+                    break;
+                case 1:
+                    bookingData[bookingIndex]["date"] = data;
+                    swst++;
+                    break;
+                case 2:
+                    bookingData[bookingIndex]["time"] = data;
+                    swst = 0;
+                    bookingIndex++;
+                    break
+            }
+        }));
+        return bookingData;
+    }
+
+    public async bookRoom(id: string, password: string, date: CalendarDay, time: string, room: string, bookingType: RoomBookingEnum, code: string, name: string): Promise<{}> {
+        let retState = RoomBookingEnum.NOT_BOOKED;
+        const browser = await puppeteer.launch();
+        const page = await browser.newPage();
+        await page.goto('https://rooms.library.dc-uoit.ca/uo_rooms/calendar.aspx');
+        const SEL_continueButton = '#ContentPlaceHolder1_ButtonContinue';
+        await page.waitForSelector(SEL_continueButton);
+        await page.click(SEL_continueButton);
+        const SEL_todayButton = '#ContentPlaceHolder1_RadioButtonListDateSelection_0';
+        await page.waitForSelector(SEL_todayButton);
+        await page.click(SEL_todayButton);
+
+        switch (bookingType) {
+            case RoomBookingEnum.NOT_BOOKED:
+                const SEL_date = `a[title="Time: ${time}. Room no.: ${room.toUpperCase()}"]`;
+                const SEL_groupName = '#ContentPlaceHolder1_TextBoxName';
+                const SEL_groupCode = '#ContentPlaceHolder1_TextBoxGroupCode';
+                const SEL_duration = '#ContentPlaceHolder1_RadioButtonListDuration_3';
+                const SEL_institution = '#ContentPlaceHolder1_RadioButtonListInstitutions_1';
+                const SEL_notes = '#ContentPlaceHolder1_TextBoxNotes';
+                const SEL_id = '#ContentPlaceHolder1_TextBoxID';
+                const SEL_password = '#ContentPlaceHolder1_TextBoxPassword';
+                const SEL_bookButton = '#ContentPlaceHolder1_ButtonReserve';
+                const SEL_message = '#ContentPlaceHolder1_LabelMessage';
+                await page.waitForSelector(SEL_date);
+                await page.click(SEL_date);
+                await page.waitForSelector(SEL_groupName);
+                await page.type(SEL_groupName, name);
+                await page.waitForSelector(SEL_groupCode);
+                await page.type(SEL_groupCode, code);
+                await page.waitForSelector(SEL_duration);
+                await page.click(SEL_duration);
+                await page.waitForSelector(SEL_institution);
+                await page.click(SEL_institution);
+                await page.waitForSelector(SEL_notes);
+                await page.type(SEL_notes, 'Booked using OTR!');
+                await page.waitForSelector(SEL_id);
+                await page.type(SEL_id, id);
+                await page.waitForSelector(SEL_password);
+                await page.type(SEL_password, password);
+                await page.waitForSelector(SEL_bookButton);
+                await page.click(SEL_bookButton);
+                await page.waitForSelector(SEL_message);
+                let bodyHandle = await page.$(SEL_message);
+                const message = await page.evaluate(body => body.innerHTML, bodyHandle);
+                if (message.includes('allocated to you')) {
+                    console.log("Booking made... still need additional people");
+                    retState = RoomBookingEnum.INCOMPLETE_BOOKING;
+                } else if (message.includes('Success')) {
+                    retState = RoomBookingEnum.BOOKING_COMPLETED;
+                } else {
+                    retState = RoomBookingEnum.NOT_BOOKED;
+                }
+                break;
+            case RoomBookingEnum.INCOMPLETE_BOOKING:
+                const SEL_calEntry = `a[title="${time} / ${room.toUpperCase()}. Incomplete reservation. This slot is open for reservation"]`;
+                await page.waitForSelector(SEL_calEntry);
+                await page.click(SEL_calEntry);
+                const SEL_joinGroupCode = `input[value="${code}"]`;
+                await page.waitForSelector(SEL_joinGroupCode);
+                await page.click(SEL_joinGroupCode);
+                const SEL_createOrJoinButton = "#ContentPlaceHolder1_ButtonJoinOrCreate";
+                await page.waitForSelector(SEL_createOrJoinButton);
+                await page.click(SEL_createOrJoinButton);
+                const SEL_idTxt = '#ContentPlaceHolder1_TextBoxID';
+                await page.waitForSelector(SEL_idTxt);
+                await page.type(SEL_idTxt, id);
+                const SEL_passwordTxt = '#ContentPlaceHolder1_TextBoxPassword';
+                await page.waitForSelector(SEL_passwordTxt);
+                await page.type(SEL_passwordTxt, password);
+                const SEL_joinRoomButton = "#ContentPlaceHolder1_ButtonJoin";
+                await page.waitForSelector(SEL_joinRoomButton);
+                await page.click(SEL_joinRoomButton);
+                const SEL_messageTxt = '#ContentPlaceHolder1_LabelMessage';
+                await page.waitForSelector(SEL_messageTxt);
+                let body = await page.$(SEL_messageTxt);
+                const m = await page.evaluate(body => body.innerHTML, body);
+                if (m.includes('allocated to you')) {
+                    console.log("Booking made... still need additional people");
+                    retState = RoomBookingEnum.INCOMPLETE_BOOKING;
+                } else if (m.includes('Success')) {
+                    retState = RoomBookingEnum.BOOKING_COMPLETED;
+                } else {
+                    retState = RoomBookingEnum.NOT_BOOKED;
+                }
+                break;
+            case RoomBookingEnum.BOOKING_COMPLETED:
+                retState = RoomBookingEnum.BOOKING_COMPLETED;
+        }
+        await browser.close();
+        return {bookingState: retState};
     }
 }

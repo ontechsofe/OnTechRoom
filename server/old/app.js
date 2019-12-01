@@ -7,11 +7,13 @@ const diskdb = require('diskdb');
 const moment = require('moment');
 const request = require("request");
 const cheerio = require("cheerio");
+const puppeteer = require('puppeteer');
 
 let cookie = request.jar();
 const baseURL = "https://rooms.library.dc-uoit.ca/uo_rooms/";
 const calendarURL = baseURL + 'calendar.aspx';
 const roomURL = baseURL + 'room.aspx?room=';
+const tempUrl = baseURL + 'temp.aspx';
 
 const dbs = ['rooms'];
 const db = diskdb.connect('./', dbs);
@@ -22,7 +24,10 @@ function getStateData() {
     return new Promise((resolve, reject) => {
         request.get({
             url: calendarURL,
-            jar: cookie
+            jar: cookie,
+            headers: {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
+            }
         }, (error, response, body) => {
             const $ = cheerio.load(body);
             let data = {};
@@ -40,7 +45,10 @@ function postStateData(data) {
         request.post({
             url: calendarURL,
             formData: data,
-            jar: cookie
+            jar: cookie,
+            headers: {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
+            }
         }, (error, response, body) => {
             const $ = cheerio.load(body);
             let data = {};
@@ -63,7 +71,10 @@ function getDataForDate(data) {
         request.post({
             url: calendarURL,
             formData: data,
-            jar: cookie
+            jar: cookie,
+            headers: {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
+            }
         }, (error, response, body) => {
             resolve(body);
         });
@@ -124,9 +135,9 @@ function getCalendarData(rawCalendar) {
     let roomNames = [];
     return new Promise((resolve, reject) => {
         const $ = cheerio.load(rawCalendar);
-        $(`table#ContentPlaceHolder1_Table1  tbody > tr:first-child td a`)
+        $(`table#ContentPlaceHolder1_Table1 tbody > tr:first-child td a`)
             .each((i, e) => roomNames.push(e.children[0].data));
-        $(`table#ContentPlaceHolder1_Table1  tbody > tr`).each((i, e) => {
+        $(`table#ContentPlaceHolder1_Table1 tbody > tr`).each((i, e) => {
             let s = cheerio.load(e);
             let sr = s(`td:first-child`)[0].children[0].children;
             if (sr[0]) {
@@ -226,6 +237,45 @@ function checkLoginOnMyCampus(username, password) {
     });
 }
 
+const makeBooking = (time, room, jar) => {
+    let bookURL = `${tempUrl}?starttime=${time}&room=${room}&next=book.aspx`;
+    let getFormURL = `${baseURL}book.aspx`;
+    return new Promise(((resolve, reject) => {
+        request.get({
+            url: bookURL,
+            jar: cookie,
+            followRedirect: false,
+        }, (e, r, b) => {
+            let PAYLOAD = {};
+            let $ = cheerio.load(b);
+            $("#Form1 input").each((index, element) => {
+                PAYLOAD[element.attribs.name] = element.attribs.value;
+            });
+        });
+    }))
+};
+
+// request.post({
+//     url: bookURL,
+//     formData: PAYLOAD,
+//     jar: cookie,
+//     followRedirect: true,
+//     headers: {
+//         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
+//     }
+// }, (error, response, body) => {
+//     request.get({
+//         url: getFormURL,
+//         jar: cookie,
+//         followRedirect: true,
+//         headers: {
+//             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
+//         }
+//     }, (er, re, bo) => {
+//         resolve(bo);
+//     });
+// });
+
 app.get('/', (req, res) => {
     return res.json({data: 'Hello World!'});
 });
@@ -252,4 +302,10 @@ app.post('/auth', (req, res) => {
     })
 });
 
+app.get('/book', async (req, res) => {
+    res.json({});
+});
+
+
 app.listen(port, () => console.log(`OnTechRoom is listening on port ${port}!`));
+

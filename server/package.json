@@ -27,6 +27,7 @@
     "microframework-w3tec": "^0.6.3",
     "moment": "^2.24.0",
     "prompt-password": "^1.2.0",
+    "puppeteer": "^2.0.0",
     "reflect-metadata": "^0.1.13",
     "request": "^2.88.0",
     "routing-controllers": "^0.8.0",
@@ -55,7 +56,9 @@
       "node_modules/**/node_modules",
       "data/"
     ],
-    "watch": ["dist/"],
+    "watch": [
+      "dist/"
+    ],
     "delay": 1000,
     "env": {
       "NODE_ENV": "development"
