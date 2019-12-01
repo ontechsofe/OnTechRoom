@@ -249,7 +249,7 @@ export class OTRService {
     }
 
     public async getBookings(id: string, password: string) {
-        const browser = await puppeteer.launch();
+        const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
         const page = await browser.newPage();
         await page.goto(`https://rooms.library.dc-uoit.ca/uo_rooms/myreservations.aspx`);
         const SEL_id = '#ContentPlaceHolder1_TextBoxID';
@@ -385,7 +385,7 @@ export class OTRService {
     }
 
     private async getCalendar(date: CalendarDay) {
-        const browser = await puppeteer.launch();
+        const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
         const page = await browser.newPage();
         await page.goto('https://rooms.library.dc-uoit.ca/uo_rooms/calendar.aspx');
         await this.clickButton(page, '#ContentPlaceHolder1_ButtonContinue');
