@@ -50,6 +50,14 @@
                 android:orientation="horizontal">
 
                 <Button
+                    android:id="@+id/notifyBookingBtn"
+                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="16dp"
+                    android:text="Notify Me" />
+
+                <Button
                     android:id="@+id/leaveBookingBtn"
                     style="@style/Widget.AppCompat.Button.Colored"
                     android:layout_width="wrap_content"

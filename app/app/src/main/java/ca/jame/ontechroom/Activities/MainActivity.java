@@ -31,25 +31,6 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         welcomeMessage.setText(String.format(Locale.CANADA, "Welcome, %s!", u.firstName));
     }
 
-//    void showNotification(String title, String message) {
-//        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-//            NotificationChannel channel = new NotificationChannel("generalnotifications", "General Notifications", NotificationManager.IMPORTANCE_HIGH);
-//            channel.setDescription("General notifications from the app");
-//            mNotificationManager.createNotificationChannel(channel);
-//        }
-//        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), "generalnotifications")
-//                .setSmallIcon(R.drawable.shield)
-//                .setContentTitle(title)
-//                .setContentText(message)
-//                .setAutoCancel(true)
-//                .setPriority(NotificationCompat.PRIORITY_HIGH);
-//        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-//        PendingIntent pi = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-//        mBuilder.setContentIntent(pi);
-//        mNotificationManager.notify(0, mBuilder.build());
-//    }
-
     public void doBookingActivity(View view) {
         Intent intent = new Intent(MainActivity.this, JoinOrNewActivity.class);
         startActivity(intent);
