@@ -36,13 +36,7 @@ public class RoomBookingSearchActivity extends AppCompatActivity {
         dialog = new Dialog(RoomBookingSearchActivity.this);
         new Thread(() -> {
             showDialog();
-            // do the actual search in initList
             initList(day, time, length, peopleCount);
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
             initRecyclerView();
             hideDialog();
         }).start();

@@ -22,13 +22,6 @@ public class OnTechRoom {
         rooms = new ArrayList<>();
     }
 
-    public ArrayList<Booking> getIncompleteBookings() {
-        return new ArrayList<Booking>() {{
-            this.add(new Booking("TEST1"));
-            this.add(new Booking("TEST2"));
-        }};
-    }
-
     public ArrayList<AvailableRoom> searchForRoom() {
         return new ArrayList<AvailableRoom>() {{
             this.add(new AvailableRoom());

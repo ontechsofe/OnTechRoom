@@ -23,4 +23,8 @@ export class BookingService {
     public async getPreviousBookings(id: string, password: string) {
         return await this.otrService.getBookings(id, password);
     }
+
+    public async getIncompleteBookings(day: CalendarDay) {
+        return await this.otrService.getIncompleteBookings(day);
+    }
 }

@@ -223,6 +223,69 @@ export class OTRService {
         return timeObject;
     }
 
+    public async getIncompleteBookings(day: CalendarDay) {
+        const {browser, page} = await this.getCalendar(day);
+        await page.screenshot({path: 'example.png'}); // This seems to wait for long enough to get the page loaded?
+        await page.waitForSelector('form#Form1');
+        let tableBody = await page.$('form#Form1');
+        const body = await page.evaluate(b => b.innerHTML, tableBody);
+        let $ = cheerio.load(body);
+        let allCurrentBookingTimes = [];
+        $('a img[src*="open1"]').each((index, element) => {
+            let longRawData = $(element).attr("title");
+            let split1 = longRawData.split(" / ");
+            let split2 = split1[1].split(".");
+            allCurrentBookingTimes.push({time: split1[0], room: split2[0]})
+        });
+        let incompleteBookingsSet = new Set();
+        for (let i = 0; i < allCurrentBookingTimes.length; i++) {
+            let searchString = `${allCurrentBookingTimes[i].time} / ${allCurrentBookingTimes[i].room}. Incomplete reservation. This slot is open for reservation`;
+            await page.screenshot({path: 'example.png'});
+            this.clickButton(page, `a[title="${searchString}"]`);
+            await page.waitForSelector("#ContentPlaceHolder1_RadioButtonListJoinOrCreateGroup");
+            let availableBookings = await page.$("#ContentPlaceHolder1_RadioButtonListJoinOrCreateGroup");
+            const body = await page.evaluate(b => b.innerHTML, availableBookings);
+            let pr = cheerio.load(body);
+            pr(`input[type="radio"]`).each(((index, element) => {
+                incompleteBookingsSet.add(`${allCurrentBookingTimes[i].room}~~~~${pr(element).attr("value")}~~~~${allCurrentBookingTimes[i].time}`);
+            }));
+            await page.goBack();
+        }
+        let incompleteBooking = Array.from(incompleteBookingsSet);
+        incompleteBooking = incompleteBooking
+            .filter((e: any) => !e.includes("invalid_code"))
+            .map((e: any) => {
+                let pa = e.split("~~~~");
+                return {
+                    room: pa[0],
+                    code: pa[1],
+                    time: pa[2]
+                };
+            });
+        let parsedEvents = {};
+        incompleteBooking.forEach((e: any) => {
+            if (!parsedEvents[e.code]) {
+                parsedEvents[e.code] = {
+                    room: e.room,
+                    time: []
+                };
+            }
+            parsedEvents[e.code].time.push(e.time);
+        });
+
+        let processedEvents = [];
+        let codes = Object.keys(parsedEvents);
+        for (let code in codes) {
+            processedEvents.push({
+                code: codes[code],
+                room: parsedEvents[codes[code]].room,
+                time: parsedEvents[codes[code]].time
+            })
+        }
+        await browser.close();
+        return processedEvents;
+    }
+
     public async getCalendarByRoom(day: CalendarDay) {
         let calendar = await this.getCalendarByDay(day);
         let roomObject = {};
@@ -407,16 +470,13 @@ export class OTRService {
      * This could be better controlled from inside the app... but also valuable on the api
      */
     public async searchForRoom(day: CalendarDay, time: string, length: BookingLengthEnum, peopleCount: number) {
-        console.log({day, time, length, peopleCount});
         let cal = await this.getCalendarByDay(day);
-        console.table(cal);
         let times = Object.keys(cal);
         let startIndex = 0;
         if (time[0] === "0") {
             time = time.substr(1);
         }
         for (let i = 0; i < times.length; i++) {
-            console.log(times[i], time);
             if (times[i] === time) {
                 startIndex = i;
                 break;
@@ -437,7 +497,6 @@ export class OTRService {
                 }
             }
         }
-        console.log(roomStatus);
         let goodRooms = [];
         let possibleSuggestions = []; // this is a last minute addition
         for (let room in roomStatus) {
@@ -445,7 +504,6 @@ export class OTRService {
                 goodRooms.push(room);
             }
         }
-        console.log({goodRooms, possibleSuggestions});
         return {goodRooms, possibleSuggestions};
     }
 }

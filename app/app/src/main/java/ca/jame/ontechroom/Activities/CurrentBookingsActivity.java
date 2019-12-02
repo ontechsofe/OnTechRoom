@@ -1,5 +1,6 @@
 package ca.jame.ontechroom.Activities;
 
+import android.app.Dialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -10,8 +11,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
+import ca.jame.ontechroom.API.OTR;
 import ca.jame.ontechroom.API.OnTechRoom.OnTechRoom;
 import ca.jame.ontechroom.API.types.Booking;
+import ca.jame.ontechroom.API.types.IncompleteBooking;
 import ca.jame.ontechroom.Adapters.BookingCardAdapter;
 import ca.jame.ontechroom.R;
 
@@ -19,15 +22,22 @@ public class CurrentBookingsActivity extends AppCompatActivity {
 
     private static final String TAG = "CurrentBookingsActivity";
 
-    private ArrayList<Booking> mBookings = new ArrayList<>();
+    private ArrayList<IncompleteBooking> mBookings = new ArrayList<>();
     BookingCardAdapter adapter;
+
+    Dialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_current_bookings);
-        initList();
-        initRecyclerView();
+        dialog = new Dialog(CurrentBookingsActivity.this);
+        new Thread(() -> {
+            showDialog();
+            initList();
+            initRecyclerView();
+            hideDialog();
+        }).start();
     }
 
     @Override
@@ -42,15 +52,30 @@ public class CurrentBookingsActivity extends AppCompatActivity {
     }
 
     public void initList() {
-        this.mBookings = OnTechRoom.getInstance().getIncompleteBookings();
+        this.mBookings = OTR.getInstance().getIncompleteBookings();
     }
 
     private void initRecyclerView() {
-        Log.d(TAG, "initRecyclerView: init recycler view");
-        RecyclerView recyclerView = findViewById(R.id.bookingsCardRecycler);
-        adapter = new BookingCardAdapter(this, mBookings);
-        Log.d(TAG, "initRecyclerView: " + adapter);
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        runOnUiThread(() -> {
+            Log.d(TAG, "initRecyclerView: init recycler view");
+            RecyclerView recyclerView = findViewById(R.id.bookingsCardRecycler);
+            adapter = new BookingCardAdapter(this, mBookings);
+            Log.d(TAG, "initRecyclerView: " + adapter);
+            recyclerView.setAdapter(adapter);
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        });
+    }
+
+    private void showDialog() {
+        runOnUiThread(() -> {
+            dialog.setContentView(R.layout.dialog_loading);
+            dialog.setCancelable(false);
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.show();
+        });
+    }
+
+    private void hideDialog() {
+        runOnUiThread(() -> dialog.dismiss());
     }
 }

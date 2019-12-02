@@ -14,14 +14,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 import ca.jame.ontechroom.API.types.Booking;
+import ca.jame.ontechroom.API.types.IncompleteBooking;
 import ca.jame.ontechroom.R;
 
 public class BookingCardAdapter extends RecyclerView.Adapter<BookingCardAdapter.ViewHolder> {
     private static final String TAG = "BookingCardAdapter";
-    private ArrayList<Booking> mBookings;
+    private ArrayList<IncompleteBooking> mBookings;
     private Context mContext;
 
-    public BookingCardAdapter(Context mContext, ArrayList<Booking> mBookings) {
+    public BookingCardAdapter(Context mContext, ArrayList<IncompleteBooking> mBookings) {
         this.mBookings = mBookings;
         this.mContext = mContext;
     }
@@ -36,14 +37,9 @@ public class BookingCardAdapter extends RecyclerView.Adapter<BookingCardAdapter.
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Log.d(TAG, "onBindViewHolder: called");
-        holder.textView.setText(mBookings.get(position).id);
+        holder.textView.setText(mBookings.get(position).code);
         holder.parentLayout.setOnClickListener(v -> {
             Log.d(TAG, "onClick: clicked on: " + mBookings.get(position));
-            // move to the booking view page
-//            Activity mContext = (Activity) v.getContext();
-//            Intent intent = new Intent(mContext, RoomViewActivity.class);;
-//            mContext.startActivity(intent);
-//            mContext.overridePendingTransition(R.anim.slide_out_left, R.anim.slide_in_left);
         });
     }
 

@@ -14,6 +14,7 @@ import ca.jame.ontechroom.API.httpClient.HTTPClient;
 import ca.jame.ontechroom.API.types.AvailableRoom;
 import ca.jame.ontechroom.API.types.Booking;
 import ca.jame.ontechroom.API.types.CalendarSearchResult;
+import ca.jame.ontechroom.API.types.IncompleteBooking;
 import ca.jame.ontechroom.API.types.PastBooking;
 import ca.jame.ontechroom.API.types.Room;
 
@@ -28,8 +29,8 @@ public class OTR {
         return instance;
     }
 
-//    private static final String BASE_URL = "http://10.0.2.2:12345/api"; // Loopback reference to localhost on root machine
-    private static final String BASE_URL = "http://api.otr.ontechsofe.tk/api";
+    private static final String BASE_URL = "http://10.0.2.2:12345/api"; // Loopback reference to localhost on root machine
+//    private static final String BASE_URL = "http://api.otr.ontechsofe.tk/api";
 
     private OTR() {
     }
@@ -89,6 +90,16 @@ public class OTR {
     public Room getRoomById(String roomName) {
         try {
             return new Gson().fromJson(HTTPClient.get(String.format("%s/rooms/%s", BASE_URL, roomName)), new TypeToken<Room>() {
+            }.getType());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public ArrayList<IncompleteBooking> getIncompleteBookings() {
+        try {
+            return new Gson().fromJson(HTTPClient.get(String.format("%s/booking/incomplete/0", BASE_URL)), new TypeToken<ArrayList<IncompleteBooking>>() {
             }.getType());
         } catch (IOException e) {
             e.printStackTrace();

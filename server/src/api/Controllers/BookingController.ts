@@ -1,4 +1,4 @@
-import {Body, Get, JsonController, Post} from 'routing-controllers';
+import {Body, Get, JsonController, Param, Post} from 'routing-controllers';
 import {CalendarDay} from "../Types/DayEnum";
 import {BookingService} from "../Services/BookingService";
 import {RoomBookingEnum} from "../Types/RoomBookingEnum";
@@ -40,6 +40,11 @@ export class BookingController {
     @Get('/max')
     public async getMaxBookings() {
         return {maxBookings: BookingService.MAX_BOOKINGS};
+    }
+
+    @Get('/incomplete/:day')
+    public async getIncompleteBookings(@Param('day') day: CalendarDay) {
+        return await this.bookingService.getIncompleteBookings(day);
     }
 
     @Post('/past')
