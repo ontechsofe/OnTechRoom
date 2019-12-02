@@ -364,12 +364,17 @@ export class OTRService {
 
     public async bookRoom(id: string, password: string, date: CalendarDay, time: string, room: string, bookingType: RoomBookingEnum, code: string, name: string, length: BookingLengthEnum): Promise<{}> {
         try {
+            if (time[0] === "0") {
+                time = time.substr(1);
+            }
             let retState = RoomBookingEnum.NOT_BOOKED;
             let errorMessage = "";
             const {browser, page} = await this.getCalendar(date);
-            console.log(bookingType);
+            await page.screenshot({path: 'example.png'});
+            console.log(bookingType, time);
             switch (bookingType) {
                 case RoomBookingEnum.NOT_BOOKED:
+
                     await this.clickButton(page, `a[title="Time: ${time}. Room no.: ${room.toUpperCase()}"]`);
                     await this.writeToTextbox(page, '#ContentPlaceHolder1_TextBoxName', name);
                     await this.writeToTextbox(page, '#ContentPlaceHolder1_TextBoxGroupCode', code);

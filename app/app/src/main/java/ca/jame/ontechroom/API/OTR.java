@@ -13,6 +13,7 @@ import java.util.Map;
 import ca.jame.ontechroom.API.httpClient.HTTPClient;
 import ca.jame.ontechroom.API.types.AvailableRoom;
 import ca.jame.ontechroom.API.types.Booking;
+import ca.jame.ontechroom.API.types.BookingResponse;
 import ca.jame.ontechroom.API.types.CalendarSearchResult;
 import ca.jame.ontechroom.API.types.IncompleteBooking;
 import ca.jame.ontechroom.API.types.PastBooking;
@@ -106,4 +107,54 @@ public class OTR {
         }
         return null;
     }
+
+    public BookingResponse joinBooking(String id, String password, String time, String room, String code) {
+        try {
+            HashMap<String, String> payload = new HashMap<>();
+            payload.put("id", id);
+            payload.put("password", password);
+            payload.put("date", "0");
+            payload.put("time", time);
+            payload.put("room", room);
+            payload.put("bookingType", "1"); // Existing Booking
+            payload.put("code", code);
+            payload.put("name", "");
+            payload.put("length", "");
+            return new Gson().fromJson(HTTPClient.post(String.format("%s/booking/new", BASE_URL), payload), new TypeToken<BookingResponse>() {
+            }.getType());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public BookingResponse newBooking(String id, String password, int date, String time, String room, String code, String name, int length) {
+        try {
+            HashMap<String, String> payload = new HashMap<>();
+            payload.put("id", id);
+            payload.put("password", password);
+            payload.put("date", String.valueOf(date));
+            payload.put("time", time);
+            payload.put("room", room);
+            payload.put("bookingType", "0"); // New booking
+            payload.put("code", code);
+            payload.put("name", name);
+            payload.put("length", String.valueOf(length));
+            return new Gson().fromJson(HTTPClient.post(String.format("%s/booking/new", BASE_URL), payload), new TypeToken<BookingResponse>() {
+            }.getType());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
+
+//public id: string;
+//public password: string;
+//public date: CalendarDay;
+//public time: string;
+//public room: string;
+//public bookingType: RoomBookingEnum;
+//public code: string;
+//public name: string;
+//public length: BookingLengthEnum;

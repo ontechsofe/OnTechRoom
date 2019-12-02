@@ -12,7 +12,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".Activities.RoomBookingSearchActivity"></activity>
+        <activity android:name=".Activities.DoBookingActivity"></activity>
+        <activity android:name=".Activities.RoomBookingSearchActivity" />
         <activity android:name=".Activities.NewBookingActivity" />
         <activity android:name=".Activities.CurrentBookingsActivity" />
         <activity android:name=".Activities.JoinOrNewActivity" />

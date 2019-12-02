@@ -18,19 +18,28 @@ import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import ca.jame.ontechroom.API.OnTechRoom.OnTechRoom;
 import ca.jame.ontechroom.API.types.Room;
+import ca.jame.ontechroom.Activities.DoBookingActivity;
+import ca.jame.ontechroom.Activities.RoomBookingSearchActivity;
 import ca.jame.ontechroom.Activities.RoomViewActivity;
 import ca.jame.ontechroom.R;
 
 public class AvailableRoomAdapter extends RecyclerView.Adapter<AvailableRoomAdapter.ViewHolder> {
     private static final String TAG = "AvailableRoomAdapter";
+    private final int day;
+    private final String time;
+    private final int length;
+    private final int peopleCount;
     private ArrayList<Room> availableRooms;
     private Context mContext;
 
-    public AvailableRoomAdapter(Context mContext, ArrayList<Room> availableRooms) {
+    public AvailableRoomAdapter(Context mContext, ArrayList<Room> availableRooms, int day, String time, int length, int peopleCount) {
         this.availableRooms = availableRooms;
         this.mContext = mContext;
+        this.day = day;
+        this.time = time;
+        this.length = length;
+        this.peopleCount = peopleCount;
     }
 
     @NonNull
@@ -56,7 +65,14 @@ public class AvailableRoomAdapter extends RecyclerView.Adapter<AvailableRoomAdap
             ((Activity) mContext).overridePendingTransition(R.anim.slide_out_left, R.anim.slide_in_left);
         });
         holder.bookTheRoom.setOnClickListener((View view) -> {
-
+            Intent intent = new Intent(mContext, DoBookingActivity.class);
+            intent.putExtra("day", day);
+            intent.putExtra("time", time);
+            intent.putExtra("length", length);
+            intent.putExtra("peopleCount", peopleCount);
+            intent.putExtra("room", availableRooms.get(position).name);
+            mContext.startActivity(intent);
+            ((Activity) mContext).overridePendingTransition(R.anim.slide_out_left, R.anim.slide_in_left);
         });
     }
 

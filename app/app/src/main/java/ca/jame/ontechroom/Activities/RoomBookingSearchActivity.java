@@ -23,6 +23,10 @@ public class RoomBookingSearchActivity extends AppCompatActivity {
     AvailableRoomAdapter adapter;
 
     Dialog dialog;
+    private int day;
+    private String time;
+    private int length;
+    private int peopleCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,13 +63,17 @@ public class RoomBookingSearchActivity extends AppCompatActivity {
                 .stream()
                 .map((String e) -> OTR.getInstance().getRoomById(e))
                 .collect(Collectors.toList());
+        this.day = day;
+        this.time = time;
+        this.length = length;
+        this.peopleCount = peopleCount;
     }
 
     private void initRecyclerView() {
         runOnUiThread(() -> {
             Log.d(TAG, "initRecyclerView: init recycler view");
             RecyclerView recyclerView = findViewById(R.id.availableRoomRecycler);
-            adapter = new AvailableRoomAdapter(this, availableRooms);
+            adapter = new AvailableRoomAdapter(this, availableRooms, day, time, length, peopleCount);
             Log.d(TAG, "initRecyclerView: " + adapter);
             recyclerView.setAdapter(adapter);
             recyclerView.setLayoutManager(new LinearLayoutManager(this));

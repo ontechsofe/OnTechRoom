@@ -54,7 +54,10 @@ export class BookingController {
 
     @Post('/new')
     public async makeBooking(@Body() body: NewBookingBody) {
-        return this.bookingService.makeBooking(body.id, body.password, body.date, body.time, body.room, body.bookingType, body.code, body.name, body.length);
+        let date = (typeof body.date === "string" ? parseInt(body.date) : body.date);
+        let bookingType = (typeof body.bookingType === "string" ? parseInt(body.bookingType) : body.bookingType);
+        let length = (typeof body.length === "string" ? parseInt(body.length) : body.length);
+        return this.bookingService.makeBooking(body.id, body.password, date, body.time, body.room, bookingType, body.code, body.name, length);
     }
 
     @Post('/leave')
