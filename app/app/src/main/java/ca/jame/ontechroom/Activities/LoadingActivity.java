@@ -44,10 +44,6 @@ public class LoadingActivity extends AppCompatActivity {
         new Thread(() -> {
             try {
                 Thread.sleep(1000);
-                OnTechRoom x = OnTechRoom.getInstance();
-                ArrayList<Room> rooms = OTR.getInstance().getRooms();
-                System.out.println(rooms);
-                x.setRooms(rooms);
                 UserDB userDB = new UserDB(getApplicationContext());
                 boolean loggedIn = userDB.userCount() > 0;
                 if (loggedIn) {

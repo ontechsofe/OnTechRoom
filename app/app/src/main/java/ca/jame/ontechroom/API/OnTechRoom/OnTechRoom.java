@@ -2,6 +2,7 @@ package ca.jame.ontechroom.API.OnTechRoom;
 
 import java.util.ArrayList;
 
+import ca.jame.ontechroom.API.types.AvailableRoom;
 import ca.jame.ontechroom.API.types.Booking;
 import ca.jame.ontechroom.API.types.Room;
 
@@ -25,6 +26,14 @@ public class OnTechRoom {
         return new ArrayList<Booking>() {{
             this.add(new Booking("TEST1"));
             this.add(new Booking("TEST2"));
+        }};
+    }
+
+    public ArrayList<AvailableRoom> searchForRoom() {
+        return new ArrayList<AvailableRoom>() {{
+            this.add(new AvailableRoom());
+            this.add(new AvailableRoom());
+            this.add(new AvailableRoom());
         }};
     }
 

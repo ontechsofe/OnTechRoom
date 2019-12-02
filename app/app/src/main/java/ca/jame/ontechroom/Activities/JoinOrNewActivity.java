@@ -15,18 +15,25 @@ public class JoinOrNewActivity extends AppCompatActivity {
         setContentView(R.layout.activity_join_or_new);
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_right);
+    }
+
     public void goBack(View view) {
         finish();
         overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_right);
     }
 
     public void doNewBooking(View view) {
-        Intent intent = new Intent(JoinOrNewActivity.this, TodayOrTomorrowActivity.class);
+        Intent intent = new Intent(JoinOrNewActivity.this, NewBookingActivity.class);
         startActivity(intent);
         overridePendingTransition(R.anim.slide_out_left, R.anim.slide_in_left);
     }
 
     public void doJoinBookings(View view) {
+        // get the current incomplete bookings
         Intent intent = new Intent(JoinOrNewActivity.this, CurrentBookingsActivity.class);
         startActivity(intent);
         overridePendingTransition(R.anim.slide_out_left, R.anim.slide_in_left);

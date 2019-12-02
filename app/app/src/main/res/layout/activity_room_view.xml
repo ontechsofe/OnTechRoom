@@ -281,24 +281,6 @@
 
                         </LinearLayout>
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_margin="8dp"
-                            android:orientation="vertical">
-
-                            <Button
-                                android:id="@+id/button4"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:background="@drawable/ripple_effect_simcoe"
-                                android:fontFamily="@font/ubuntu"
-                                android:onClick="snackTime"
-                                android:text="Book This Room"
-                                android:textColor="@color/colorWhite"
-                                android:textSize="18sp" />
-                        </LinearLayout>
-
                     </LinearLayout>
 
                 </androidx.cardview.widget.CardView>

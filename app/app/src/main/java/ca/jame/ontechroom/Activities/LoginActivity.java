@@ -73,9 +73,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void hideError() {
-        runOnUiThread(() -> {
-            error.setVisibility(View.INVISIBLE);
-        });
+        runOnUiThread(() -> error.setVisibility(View.INVISIBLE));
     }
 
     private void showDialog() {

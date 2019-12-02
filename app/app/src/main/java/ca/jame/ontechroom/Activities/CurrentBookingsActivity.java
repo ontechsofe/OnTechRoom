@@ -47,9 +47,9 @@ public class CurrentBookingsActivity extends AppCompatActivity {
 
     private void initRecyclerView() {
         Log.d(TAG, "initRecyclerView: init recycler view");
-        RecyclerView recyclerView = findViewById(R.id.roomCardRecycler);
+        RecyclerView recyclerView = findViewById(R.id.bookingsCardRecycler);
         adapter = new BookingCardAdapter(this, mBookings);
-        logd
+        Log.d(TAG, "initRecyclerView: " + adapter);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }

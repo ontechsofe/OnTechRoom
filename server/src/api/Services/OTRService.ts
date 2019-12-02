@@ -179,56 +179,48 @@ export class OTRService {
         return g;
     };
 
-    public getCalendarData(rawCalendar) {
-        let timeObject = {};
+    public async getCalendarByDay(day: CalendarDay): Promise<{}> {
+        const {browser, page} = await this.getCalendar(day);
+        await page.screenshot({path: 'example.png'}); // This seems to wait for long enough to get the page loaded?
+        await page.waitForSelector('form#Form1');
+        let tableBody = await page.$('form#Form1');
+        const body = await page.evaluate(b => b.innerHTML, tableBody);
+        let $ = cheerio.load(body);
         let roomNames = [];
-        return new Promise((resolve, reject) => {
-            const $ = cheerio.load(rawCalendar);
-            $(`table#ContentPlaceHolder1_Table1 tbody > tr:first-child td a`)
-                .each((i, e) => roomNames.push(e.children[0].data));
-            $(`table#ContentPlaceHolder1_Table1 tbody > tr`).each((i, e) => {
-                let s = cheerio.load(e);
-                let sr = s(`td:first-child`)[0].children[0].children;
-                if (sr[0]) {
-                    let t = sr[0].data.trim();
-                    timeObject[t] = this.convertArrayToObject(roomNames);
-                    s(`td:not(:first-child)`).each((index, element) => {
-                        let tableString = "";
-                        if (element.children[0].children[0].data) {
-                            tableString = element.children[0].children[0].data;
-                        } else if (element.children[0].children[0].children[0]) {
-                            tableString = element.children[0].children[0].children[0].data;
-                        } else {
-                            tableString = "=OPEN=";
-                        }
-                        timeObject[t][roomNames[index]] = tableString;
-                    })
+        let timeObject = {};
+        $(`table#ContentPlaceHolder1_Table1 tbody > tr:first-child td a`).each((i, e) => roomNames.push(e.children[0].data));
+        $(`table#ContentPlaceHolder1_Table1 tbody > tr:not(:first-child)`).each((i, e) => {
+            let s = cheerio.load(e);
+            let t = s("td:first-child")[0].children[0].data.trim();
+            timeObject[t] = this.convertArrayToObject(roomNames); // ensure new instance of object per time
+            s(`td:not(:first-child)`).each((index, element) => {
+                let tableString = "";
+                if (element.children[0].data) {
+                    tableString = element.children[0].data;
+                } else if (element.children[0].children[0].data) {
+                    tableString = element.children[0].children[0].data;
+                } else {
+                    tableString = "=OPEN=";
                 }
-            });
-            let previousTime = null;
-            for (let key in timeObject) {
-                if (!timeObject.hasOwnProperty(key)) continue;
-                let obj = timeObject[key];
-                for (let prop in obj) {
-                    if (!obj.hasOwnProperty(prop)) continue;
-                    if (previousTime !== null) {
-                        if (timeObject[previousTime][prop] !== "\"" && timeObject[key][prop] === "\"") {
-                            timeObject[key][prop] = timeObject[previousTime][prop];
-                        }
+                timeObject[t][roomNames[index]] = tableString;
+            })
+        });
+        let previousTime = null;
+        for (let key in timeObject) {
+            if (!timeObject.hasOwnProperty(key)) continue;
+            let obj = timeObject[key];
+            for (let prop in obj) {
+                if (!obj.hasOwnProperty(prop)) continue;
+                if (previousTime !== null) {
+                    if (timeObject[previousTime][prop] !== "\"" && timeObject[key][prop] === "\"") {
+                        timeObject[key][prop] = timeObject[previousTime][prop];
                     }
                 }
-                previousTime = key;
             }
-            resolve(timeObject);
-        })
-    }
-
-    public async getCalendarByDay(date: CalendarDay): Promise<{}> {
-        let stateData = await this.getStateData();
-        let postContinueData = await this.postStateData(stateData);
-        let rawCalendar: string = await this.getDataForDate(postContinueData, date);
-        let calendar = await this.getCalendarData(rawCalendar);
-        return calendar;
+            previousTime = key;
+        }
+        browser.close();
+        return timeObject;
     }
 
     public async getCalendarByRoom(day: CalendarDay) {
@@ -385,12 +377,17 @@ export class OTRService {
     }
 
     private async getCalendar(date: CalendarDay) {
-        const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
-        const page = await browser.newPage();
-        await page.goto('https://rooms.library.dc-uoit.ca/uo_rooms/calendar.aspx');
-        await this.clickButton(page, '#ContentPlaceHolder1_ButtonContinue');
-        await this.clickButton(page, (date === CalendarDay.TODAY ? '#ContentPlaceHolder1_RadioButtonListDateSelection_0' : '#ContentPlaceHolder1_RadioButtonListDateSelection_1'));
-        return {browser, page};
+        try {
+            const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
+            const page = await browser.newPage();
+            await page.goto('https://rooms.library.dc-uoit.ca/uo_rooms/calendar.aspx');
+            await this.clickButton(page, '#ContentPlaceHolder1_ButtonContinue');
+            await this.clickButton(page, (date === CalendarDay.TODAY ? '#ContentPlaceHolder1_RadioButtonListDateSelection_0' : '#ContentPlaceHolder1_RadioButtonListDateSelection_1'));
+            return {browser, page};
+        } catch (e) {
+            console.error(e);
+        }
+        return null;
     }
 
     private async writeToTextbox(page, selector: string, data: string) {
@@ -401,5 +398,54 @@ export class OTRService {
     private async clickButton(page, selector: string) {
         await page.waitForSelector(selector);
         await page.click(selector);
+    }
+
+    /**
+     * Note to self
+     * TODO:
+     * The Calendar restricts the length of the booking till the last time on the calendar
+     * This could be better controlled from inside the app... but also valuable on the api
+     */
+    public async searchForRoom(day: CalendarDay, time: string, length: BookingLengthEnum, peopleCount: number) {
+        console.log({day, time, length, peopleCount});
+        let cal = await this.getCalendarByDay(day);
+        console.table(cal);
+        let times = Object.keys(cal);
+        let startIndex = 0;
+        if (time[0] === "0") {
+            time = time.substr(1);
+        }
+        for (let i = 0; i < times.length; i++) {
+            console.log(times[i], time);
+            if (times[i] === time) {
+                startIndex = i;
+                break;
+            }
+        }
+        let roomList = Object.keys(cal[times[startIndex]]);
+        let roomStatus = {};
+        for (let room in roomList) {
+            roomStatus[roomList[room]] = 0;
+        }
+        for (let i = 0; i <= length; i++) {
+            if (cal[times[startIndex + i]]) {
+                let roomStats = cal[times[startIndex + i]];
+                for (let j = 0; j < roomList.length; j++) {
+                    if (roomStats[roomList[j]] === "=OPEN=") {
+                        roomStatus[roomList[j]]++;
+                    }
+                }
+            }
+        }
+        console.log(roomStatus);
+        let goodRooms = [];
+        let possibleSuggestions = []; // this is a last minute addition
+        for (let room in roomStatus) {
+            if (roomStatus[room] === (length + 1)) {
+                goodRooms.push(room);
+            }
+        }
+        console.log({goodRooms, possibleSuggestions});
+        return {goodRooms, possibleSuggestions};
     }
 }
