@@ -42,7 +42,7 @@ export class BookingController {
         return {maxBookings: BookingService.MAX_BOOKINGS};
     }
 
-    @Post('/get')
+    @Post('/past')
     public async getBookings(@Body() body: PreviousBookingBody) {
         return await this.bookingService.getPreviousBookings(body.id, body.password);
     }
