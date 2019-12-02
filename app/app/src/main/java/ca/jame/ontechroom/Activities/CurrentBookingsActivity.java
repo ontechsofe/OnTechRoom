@@ -5,15 +5,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import java.util.ArrayList;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.util.ArrayList;
-
 import ca.jame.ontechroom.API.OTR;
-import ca.jame.ontechroom.API.OnTechRoom.OnTechRoom;
-import ca.jame.ontechroom.API.types.Booking;
 import ca.jame.ontechroom.API.types.IncompleteBooking;
 import ca.jame.ontechroom.Adapters.BookingCardAdapter;
 import ca.jame.ontechroom.R;

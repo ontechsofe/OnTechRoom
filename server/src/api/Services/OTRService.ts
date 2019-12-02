@@ -351,15 +351,24 @@ export class OTRService {
         return bookingData;
     }
 
-    public async leaveBooking(id: string, password: string, date: CalendarDay, time: string, room: string) {
-        const {browser, page} = await this.getCalendar(date);
-        await this.clickButton(page, `td[title="Time: ${time}. Room no.: ${room.toUpperCase()}"] > a`);
-        await this.writeToTextbox(page, '#ContentPlaceHolder1_TextBoxStudentID', id);
-        await this.writeToTextbox(page, '#ContentPlaceHolder1_TextBoxPassword', password);
-        await page.waitForSelector("#ContentPlaceHolder1_ButtonLeaveGroup");
-        await page.click("#ContentPlaceHolder1_ButtonLeaveGroup");
-        await browser.close();
-        return {bookingState: RoomBookingEnum.INCOMPLETE_BOOKING};
+    public async leaveBooking(id: string, password: string, date: CalendarDay, time: string, room: string, code: string) {
+        try {
+            const {browser, page} = await this.getCalendar(date);
+            if (time[0] === "0") {
+                time = time.substr(1);
+            }
+            await this.clickButton(page, `a[title="${time} / ${room.toUpperCase()}. Incomplete reservation. This slot is open for reservation"]`);
+            await this.clickButton(page, `table#ContentPlaceHolder1_RadiobuttonListLeaveGroup input[value="${code}"]`);
+            await this.clickButton(page, `#ContentPlaceHolder1_ButtonLeave`);
+            await this.writeToTextbox(page, '#ContentPlaceHolder1_TextBoxID', id);
+            await this.writeToTextbox(page, '#ContentPlaceHolder1_TextBoxPassword', password);
+            await this.clickButton(page, `#ContentPlaceHolder1_ButtonLeave`);
+            await browser.close();
+            return {bookingState: RoomBookingEnum.INCOMPLETE_BOOKING};
+        } catch (e) {
+            console.error(e);
+        }
+        return null;
     }
 
     public async bookRoom(id: string, password: string, date: CalendarDay, time: string, room: string, bookingType: RoomBookingEnum, code: string, name: string, length: BookingLengthEnum): Promise<{}> {
@@ -371,10 +380,8 @@ export class OTRService {
             let errorMessage = "";
             const {browser, page} = await this.getCalendar(date);
             await page.screenshot({path: 'example.png'});
-            console.log(bookingType, time);
             switch (bookingType) {
                 case RoomBookingEnum.NOT_BOOKED:
-
                     await this.clickButton(page, `a[title="Time: ${time}. Room no.: ${room.toUpperCase()}"]`);
                     await this.writeToTextbox(page, '#ContentPlaceHolder1_TextBoxName', name);
                     await this.writeToTextbox(page, '#ContentPlaceHolder1_TextBoxGroupCode', code);

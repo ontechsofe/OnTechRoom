@@ -11,16 +11,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import ca.jame.ontechroom.API.OTR;
+import ca.jame.ontechroom.API.db.user.BookingDB;
 import ca.jame.ontechroom.API.db.user.UserDB;
+import ca.jame.ontechroom.API.types.Booking;
 import ca.jame.ontechroom.API.types.PastBooking;
 import ca.jame.ontechroom.API.types.User;
 import ca.jame.ontechroom.Adapters.PastBookingsCardAdapter;
+import ca.jame.ontechroom.Adapters.UpcomingBookingsCardAdapter;
 import ca.jame.ontechroom.R;
 
 public class ViewBookingsActivity extends AppCompatActivity {
     private static final String TAG = "ViewBookingsActivity";
-    private ArrayList<PastBooking> mBookings = new ArrayList<>();
-    PastBookingsCardAdapter adapter;
+    private ArrayList<PastBooking> pastBookings = new ArrayList<>();
+    private ArrayList<Booking> upcomingBookings = new ArrayList<>();
+    PastBookingsCardAdapter pastBookingsCardAdapter;
+    UpcomingBookingsCardAdapter upcomingBookingsCardAdapter;
 
     Dialog dialog;
 
@@ -31,8 +36,10 @@ public class ViewBookingsActivity extends AppCompatActivity {
         dialog = new Dialog(ViewBookingsActivity.this);
         showDialog();
         new Thread(() -> {
-            initList();
-            initRecyclerView();
+            initPastBookingList();
+            initUpcomingBookingList();
+            inigPastBookingRecycler();
+            inigUpcomingBookingRecycler();
             hideDialog();
         }).start();
     }
@@ -48,19 +55,35 @@ public class ViewBookingsActivity extends AppCompatActivity {
         overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_right);
     }
 
-    public void initList() {
+    public void initPastBookingList() {
         UserDB userDB = new UserDB(getApplicationContext());
         User u = userDB.getUser();
-        this.mBookings = OTR.getInstance().getBookings(u.studentId, u.password);
+        this.pastBookings = OTR.getInstance().getBookings(u.studentId, u.password);
     }
 
-    private void initRecyclerView() {
+    private void inigPastBookingRecycler() {
         runOnUiThread(() -> {
-            Log.d(TAG, "initRecyclerView: init recycler view");
+            Log.d(TAG, "inigPastBookingRecycler: init recycler view");
             RecyclerView recyclerView = findViewById(R.id.pastBookingsCardRecycler);
-            adapter = new PastBookingsCardAdapter(this, mBookings);
-            Log.d(TAG, "initRecyclerView: " + adapter);
-            recyclerView.setAdapter(adapter);
+            pastBookingsCardAdapter = new PastBookingsCardAdapter(this, pastBookings);
+            Log.d(TAG, "inigPastBookingRecycler: " + pastBookingsCardAdapter);
+            recyclerView.setAdapter(pastBookingsCardAdapter);
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        });
+    }
+
+    public void initUpcomingBookingList() {
+        BookingDB userDB = new BookingDB(getApplicationContext());
+        this.upcomingBookings = userDB.getAllBookings();
+    }
+
+    private void inigUpcomingBookingRecycler() {
+        runOnUiThread(() -> {
+            Log.d(TAG, "inigUpcomingBookingRecycler: init recycler view");
+            RecyclerView recyclerView = findViewById(R.id.upcomingBookingsCardRecycler);
+            upcomingBookingsCardAdapter = new UpcomingBookingsCardAdapter(this, upcomingBookings);
+            Log.d(TAG, "inigUpcomingBookingRecycler: " + upcomingBookingsCardAdapter);
+            recyclerView.setAdapter(upcomingBookingsCardAdapter);
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
         });
     }

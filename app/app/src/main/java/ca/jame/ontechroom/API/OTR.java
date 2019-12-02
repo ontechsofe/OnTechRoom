@@ -11,11 +11,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ca.jame.ontechroom.API.httpClient.HTTPClient;
-import ca.jame.ontechroom.API.types.AvailableRoom;
-import ca.jame.ontechroom.API.types.Booking;
 import ca.jame.ontechroom.API.types.BookingResponse;
 import ca.jame.ontechroom.API.types.CalendarSearchResult;
 import ca.jame.ontechroom.API.types.IncompleteBooking;
+import ca.jame.ontechroom.API.types.LeaveBookingResponse;
 import ca.jame.ontechroom.API.types.PastBooking;
 import ca.jame.ontechroom.API.types.Room;
 
@@ -147,14 +146,21 @@ public class OTR {
         }
         return null;
     }
-}
 
-//public id: string;
-//public password: string;
-//public date: CalendarDay;
-//public time: string;
-//public room: string;
-//public bookingType: RoomBookingEnum;
-//public code: string;
-//public name: string;
-//public length: BookingLengthEnum;
+    public LeaveBookingResponse leaveBooking(String id, String password, int date, String time, String room, String code) {
+        try {
+            HashMap<String, String> payload = new HashMap<>();
+            payload.put("id", id);
+            payload.put("password", password);
+            payload.put("date", String.valueOf(date));
+            payload.put("time", time);
+            payload.put("room", room);
+            payload.put("code", code);
+            return new Gson().fromJson(HTTPClient.post(String.format("%s/booking/leave", BASE_URL), payload), new TypeToken<LeaveBookingResponse>() {
+            }.getType());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+}

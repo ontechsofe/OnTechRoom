@@ -3,7 +3,6 @@ package ca.jame.ontechroom.API.OnTechRoom;
 import java.util.ArrayList;
 
 import ca.jame.ontechroom.API.types.AvailableRoom;
-import ca.jame.ontechroom.API.types.Booking;
 import ca.jame.ontechroom.API.types.Room;
 
 public class OnTechRoom {

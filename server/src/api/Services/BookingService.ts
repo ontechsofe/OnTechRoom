@@ -16,8 +16,8 @@ export class BookingService {
         return await this.otrService.bookRoom(id, password, date, time, room, bookingType, code, name, length);
     }
 
-    public async leaveBooking(id: string, password: string, date: CalendarDay, time: string, room: string) {
-        return await this.otrService.leaveBooking(id, password, date, time, room);
+    public async leaveBooking(id: string, password: string, date: CalendarDay, time: string, room: string, code: string) {
+        return await this.otrService.leaveBooking(id, password, date, time, room, code);
     }
 
     public async getPreviousBookings(id: string, password: string) {

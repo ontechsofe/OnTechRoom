@@ -27,6 +27,7 @@ class LeaveBookingBody {
     public date: CalendarDay;
     public time: string;
     public room: string;
+    public code: string;
 }
 
 @JsonController('/booking')
@@ -62,6 +63,7 @@ export class BookingController {
 
     @Post('/leave')
     public async leaveBooking(@Body() body: LeaveBookingBody) {
-        return this.bookingService.leaveBooking(body.id, body.password, body.date, body.time, body.room);
+        let date = (typeof body.date === "string" ? parseInt(body.date) : body.date);
+        return this.bookingService.leaveBooking(body.id, body.password, date, body.time, body.room, body.code);
     }
 }
