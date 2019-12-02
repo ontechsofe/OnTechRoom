@@ -2,6 +2,7 @@ package ca.jame.ontechroom.API.OnTechRoom;
 
 import java.util.ArrayList;
 
+import ca.jame.ontechroom.API.types.Booking;
 import ca.jame.ontechroom.API.types.Room;
 
 public class OnTechRoom {
@@ -20,13 +21,20 @@ public class OnTechRoom {
         rooms = new ArrayList<>();
     }
 
+    public ArrayList<Booking> getIncompleteBookings() {
+        return new ArrayList<Booking>() {{
+            this.add(new Booking("TEST1"));
+            this.add(new Booking("TEST2"));
+        }};
+    }
+
     public ArrayList<Room> getRooms() {
         return rooms;
     }
 
     public Room getRoom(String name) {
         for (int i = 0; i < rooms.size(); i++) {
-            if (rooms.get(i).name == name) {
+            if (rooms.get(i).name.equals(name)) {
                 return rooms.get(i);
             }
         }

@@ -27,7 +27,7 @@ public class JoinOrNewActivity extends AppCompatActivity {
     }
 
     public void doJoinBookings(View view) {
-        Intent intent = new Intent(JoinOrNewActivity.this, TodayOrTomorrowActivity.class);
+        Intent intent = new Intent(JoinOrNewActivity.this, CurrentBookingsActivity.class);
         startActivity(intent);
         overridePendingTransition(R.anim.slide_out_left, R.anim.slide_in_left);
     }
